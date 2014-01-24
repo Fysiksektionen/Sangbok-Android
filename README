@@ -1,0 +1,7 @@
+Sangbok
+=======
+
+En Sångboksapp till Android.
+Brutalt omskriven från: https://github.com/Fysiksektionen/Sangbok.svc
+
+Fokuserar på Android-klienten. Tanken är att sångerna ska lagras lokalt men med möjlighet att synka mot en server.
