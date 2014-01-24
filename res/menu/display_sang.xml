@@ -1,0 +1,21 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/font_inc"
+        android:title="@string/font_inc"
+        android:icon="@drawable/font_increase_f"
+        android:showAsAction="ifRoom"
+	/>
+    
+    <item android:id="@+id/font_dec"
+        android:title="@string/font_dec"
+        android:icon="@drawable/font_decrease_f"
+        android:showAsAction="ifRoom"
+    />
+    
+    <item
+        android:id="@+id/action_settings"
+        android:title="@string/menu_settings"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+     />
+
+</menu>

@@ -1,0 +1,37 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">  
+    <item android:id="@+id/sort_alph"
+        android:title="@string/alph_sort"
+        android:icon="@drawable/alph_sort_gray"
+        android:showAsAction="ifRoom"
+	/>
+    
+    <item android:id="@+id/sort_chpt"
+        android:title="@string/chpt_sort"
+        android:icon="@drawable/chpt_sort"
+        android:showAsAction="ifRoom"
+    />
+    
+    <item android:id="@+id/view_chpt"
+        android:title="@string/view_chpt"
+        android:showAsAction="ifRoom"
+    >
+        <menu>
+        </menu>
+    </item>
+    
+    <item android:id="@+id/sync"
+        android:title="@string/sync"
+        android:icon="@drawable/sync"
+    />
+    <item
+        android:id="@+id/menu_settings"
+        android:title="@string/menu_settings"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+     />
+    
+    
+    
+    
+    
+</menu>

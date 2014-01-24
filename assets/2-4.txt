@@ -1,0 +1,39 @@
+<titel>Kalmarevisan  
+
+<melodi>[PRE]Försångare[/PRE]/[ALL]Alla[/ALL]
+Sjungs lämpligen på småländska.
+
+
+<text>
+[PRE]Uti Kalmare stad
+ja där finns det ingen kvast[/PRE]
+[ALL]förrän lördagen![/ALL]
+
+[REFR][PRE]Hej dick...[/PRE]
+[ALL]...hej dack![/ALL]
+[PRE]Jag slog i...[/PRE]
+[ALL]...och vi drack![/ALL]
+[PRE]Hej dickom dickom dack![/PRE]
+[ALL]Hej dickom dickom dack!
+För uti Kalmare stad, ja där finns det ingen kvast förrän lördagen![/ALL][/REFR]
+
+[REPR][PRE]När som bonden kommer hem[/PRE]
+[ALL]kommer bondekvinnan ut [/REPR] och är så stor i sin trut.[/ALL]
+
+[REFR...]
+
+[REPR][PRE]Var är pengarna du fått?[/PRE]
+[ALL]Jo, dem har jag supit opp[/REPR] uppå Kalmare slott[/ALL]
+
+[REFR...]
+
+[REPR][PRE]Jag skall mäla dig an[/PRE]
+[ALL]för vår kronbefallningsman [/REPR]  och du skall få skam.[/ALL]
+
+[REFR...]
+
+[REPR][PRE]Kronbefallningsmannen vår[/PRE]
+[ALL]satt på krogen i går[/REPR] och var full som ett får.[/ALL]
+
+[REFR...]
+

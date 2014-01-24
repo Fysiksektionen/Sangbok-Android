@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Sangbok</string>
+    <string name="app_label">Sångbok för Fysiksektionen</string>
+    <string name="title_activity_main">Sångbok</string>
+    
+    <string name="menu_settings">Inställningar</string>
+   	<string name="sync">Synkronisera</string>
+    <string name="alph_sort">Sorterad alfabetiskt</string>
+    <string name="alph_sort_rev">Sorterad omvänt alfabetiskt</string>
+    <string name="chpt_sort">Sorterad enligt kapitel</string>
+    <string name="font_inc">Öka typsnitt</string>
+    <string name="font_dec">Minska typsnitt</string>
+    <string name="view_chpt">Kapitel</string>
+    <string name="whole_book">Hela sångboken</string>
+    
+
+    <string name="search_button">Sök</string>
+    <string name="search_hint">Sök i sångboken här&#8230;</string>
+    <string name="what_you_see">Det du ser är:</string>
+    <string name="search_results">sökresultat</string>
+    <string name="no_search_results">Tyvärr inga sökresultat</string>
+
+	<string-array name = "chapter_names">
+        <item>Visor till högtid</item>
+	    <item>Visor till gasque</item>
+	    <item>Visor till öl</item>
+	    <item>Visor till destillat</item>
+	    <item>Visor till vin</item>
+	    <item>Visor till punch</item>
+	    <item>Visor till andra drycker</item>
+	    <item>Blöta visor</item>
+	    <item>Torra visor</item>
+	    <item>Fina visor</item>
+	    <item>Vackra visor</item>
+	    <item>Nidvisor</item>
+	    <item>Skojiga visor</item>
+	    <item>Visor till Fysiker</item>
+    </string-array>
+    
+   
+    
+    <string name="title_activity_display_sang">Sången:</string>
+
+</resources>
