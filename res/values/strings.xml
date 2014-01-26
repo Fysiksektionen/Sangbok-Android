@@ -39,8 +39,15 @@
 	    <item>Visor till Fysiker</item>
     </string-array>
     
-   
-    
     <string name="title_activity_display_sang">Sången:</string>
+    
+    <string name="network_error">Ingen internetåtkomst.\nVar vänlig anslut till WiFi eller tillåt datatrafik.</string>
+    <string name="network_host_error">Okänt fel&#8230;\nPotentiellt hittades inte servern, eller så är den felkonfigurerad.\nAlternativt så misslyckades appen skriva till minnet.</string>
+    <string name="network_done">Synkronisering slutförd.</string>
+    
+    <string name="serverURL">http://www.f.kth.se/~eringh/Android/</string>
+    <string name="serverInstructionURL">AndroidInstructions.txt</string>
+    <string name="serverFileDelimiter">-</string>
+    <string name="SongFileEnding">.txt</string>
 
 </resources>

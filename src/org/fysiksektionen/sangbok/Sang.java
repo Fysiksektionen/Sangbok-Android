@@ -70,7 +70,7 @@ public class Sang implements Serializable {
 	}
 	
 	
-	//If a method tries to envoke toString, return the title
+	//If a method tries to evoke toString, return the title
 	public  String toString() {
 		return title;
 	}

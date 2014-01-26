@@ -3,14 +3,19 @@ package org.fysiksektionen.sangbok;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Scanner;
 
 import org.fysiksektionen.sangbok.domain.Song;
 import org.fysiksektionen.sangbok.network.HttpClient;
@@ -19,10 +24,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.R.integer;
 import android.app.Activity;
 import android.app.ActionBar;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.util.Log;
@@ -44,6 +53,7 @@ import android.widget.ListView;
 //import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+import android.widget.Toast;
 
 public class Sangbok extends Activity {
 	//some class-variables
@@ -59,6 +69,8 @@ public class Sangbok extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        
+        setTitle( getString(R.string.app_label) );
         
         //Set-up the linkings
         assetManager = getAssets();
@@ -122,7 +134,7 @@ public class Sangbok extends Activity {
      */
     
     /* Initialize the SongList by
-     * getting all .txt files in Assets
+     * getting all files with correct ending in Assets
      * and convert it into Songs that can be used!
      */
     public void initLists() {
@@ -134,7 +146,7 @@ public class Sangbok extends Activity {
     	for( int i=0; i<chapters.length; i++ ) {
     		sangerList.add( new ArrayList<Sang>() );
     	}
-        //Work with assets and find all .txt files
+        //Work with assets and find all files with correct ending
         String[] files = null;
         Sang temp;
         try{
@@ -143,7 +155,7 @@ public class Sangbok extends Activity {
         	e.printStackTrace();
         }
         for (String file : files) {
-            if(file.toLowerCase(Locale.ENGLISH).endsWith(".txt")){
+            if(file.toLowerCase(Locale.ENGLISH).endsWith( getString(R.string.SongFileEnding) )){
             	//Make a Song of the .txt-file and add to the list
             	temp = readSangFromFile( file );
             	sangerView.add( temp );
@@ -291,10 +303,11 @@ public class Sangbok extends Activity {
     }
     
     
-    //Handle menu options
+    //Handle menu options selected.
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
+		
 		if( id >= 0 && id <= sangerList.size() ) {
 			showChpt( id );
 			TextView textView = (TextView) findViewById(R.id.what_is_seen);
@@ -303,7 +316,6 @@ public class Sangbok extends Activity {
 		    textView.setText( seen + item.getTitle() );
 			return true;
 		}
-		
 		switch (id) {
 		case R.id.sort_alph:
 	        //When sorting alphabetically it updates the icon and states according to alphabetically or reverse.
@@ -331,6 +343,7 @@ public class Sangbok extends Activity {
 		case R.id.view_chpt:
 			return true;
 		case R.id.sync:
+			new sync().execute();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -396,4 +409,108 @@ public class Sangbok extends Activity {
 		sangerView.notifyDataSetChanged();
 		return;
 	}
+	/*
+	 * Function that performs the Synchronization of songs with the server.
+	 */
+	private class sync extends AsyncTask<String, Boolean, Integer> {
+		
+		@Override
+        protected Integer doInBackground(String... urls) {
+			Integer upDate = 1;
+			ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+		    if (networkInfo != null && networkInfo.isConnected()) {//We have Internet. Time to sync!
+		    	InputStream is = null;
+		    	InputStream sangStream = null;
+		    	FileOutputStream outputStream = null;
+		        try {
+		        	//Set up connection with the download site
+		            URL url = new URL( getString(R.string.serverURL) + getString(R.string.serverInstructionURL)  );
+		            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+		            conn.setReadTimeout(10000 /* milliseconds */);
+		            conn.setConnectTimeout(15000 /* milliseconds */);
+		            conn.setRequestMethod("GET");
+		            conn.setDoInput(true);
+		            // Starts the query
+		            conn.connect();
+		            is = conn.getInputStream();		            
+		            
+		            //Work with the info gotten from the server!
+					InputStreamReader isr = new InputStreamReader(is);
+					BufferedReader ir = new BufferedReader(isr);
+					String line;
+					int readingChpt;
+					int buffLen = -1;
+					int start = -1;
+					int stop = -1;
+					StringBuilder buffer = new StringBuilder();
+					//First row is trash!
+					ir.readLine();
+					//Then work as long as there are rows left. The come in pairs of three.
+					while( (line = ir.readLine()) != null ) {
+						//First line is the chapter integer
+						readingChpt = Integer.parseInt( line );
+						buffer.setLength(0);
+						buffer.append( getString(R.string.serverURL) );
+		              	buffer.append(line);
+		              	buffer.append( getString(R.string.serverFileDelimiter) );
+		              	buffLen = buffer.length();
+		              	
+		              	//then follows start and stop for song numbers in that chapter
+		              	line = ir.readLine();
+		              	start = Integer.parseInt(line);
+		              	line = ir.readLine();
+		              	stop = Integer.parseInt(line);
+		              	for( int i=start; i<=stop; ++i ) {
+		              		buffer.setLength(buffLen);
+		              		buffer.append(i);
+		              		buffer.append( getString(R.string.SongFileEnding) );
+//System.out.println( buffer.toString() );
+		              		conn = (HttpURLConnection) new URL( buffer.toString() ).openConnection();
+				            conn.setReadTimeout(10000 /* milliseconds */);
+				            conn.setConnectTimeout(15000 /* milliseconds */);
+				            conn.setRequestMethod("GET");
+				            conn.setDoInput(true);
+				            conn.connect();
+				            sangStream = conn.getInputStream();
+				            //Write the songs to file
+				            outputStream = openFileOutput( Integer.toString(readingChpt) + getString(R.string.serverFileDelimiter) + getString(R.string.SongFileEnding), Context.MODE_PRIVATE);
+				            outputStream.write(new Scanner(sangStream,"UTF-8").useDelimiter("\\A").next().getBytes());
+				            outputStream.close();
+		              	}
+		              	
+			        }
+		            
+		            // close stream and disconnect
+		            is.close();
+		            conn.disconnect();
+		        }
+		        catch( IOException e ) {
+		        	e.printStackTrace();
+		        	upDate = 3;
+		        }
+
+		    }else {//We do not have Internet, display error
+		    	upDate = 2;
+	    	}
+		    return upDate;
+		}
+
+		@Override
+		protected void onPostExecute(Integer upDate) {//Deliver a message to the user of how the synchronization went
+			switch( upDate) {
+			case 1:
+				Toast.makeText(Sangbok.this, R.string.network_done, Toast.LENGTH_LONG).show();
+				return;
+			case 2:
+				Toast.makeText(Sangbok.this, R.string.network_error, Toast.LENGTH_LONG).show();
+				return;
+			case 3:
+				Toast.makeText(Sangbok.this, R.string.network_host_error, Toast.LENGTH_LONG).show();
+				return;
+			}
+		}
+	}
+	
+	
 }
