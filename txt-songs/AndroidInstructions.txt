@@ -1,0 +1,13 @@
+<hej och välkommen> Syntaxen för denna fil är som följer: Första raden är bara skräp och instruktioner som kastas av Applikationen. Sen kommer raderna i grupper om 3. 1) Kapitel, 2) Första numret på sång i kapitlet, 3) Sista numret på sång i kapitlet. Alla dessa filar måste sedan finnas på formatet <kapitel>-<sångnummder>.filändelse    !!!OBS: Var noggran vi konfigurationen av denna textfil! Man får inte ha något annat än siffror på raderna, annars misslyckas appen att läsa det!!!
+1
+1
+5
+2
+1
+11
+3
+1
+11
+4
+1
+3

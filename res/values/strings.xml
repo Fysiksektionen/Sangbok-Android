@@ -42,12 +42,17 @@
     <string name="title_activity_display_sang">Sången:</string>
     
     <string name="network_error">Ingen internetåtkomst.\nVar vänlig anslut till WiFi eller tillåt datatrafik.</string>
-    <string name="network_host_error">Okänt fel&#8230;\nPotentiellt hittades inte servern, eller så är den felkonfigurerad.\nAlternativt så misslyckades appen skriva till minnet.</string>
+    <string name="network_host_error">Servern verkar vara felkonfigurerad&#8230;\nHör av dig till din favorit SysAdmin!</string>
+    <string name="network_host_not_found">Servern hittades inte, eller så är den felkonfigurerad.</string>
+    <string name="network_host_bug">Okänt fel&#8230;\nPotentiellt hittades inte servern, eller så är den felkonfigurerad.\nAlternativt så misslyckades appen skriva till minnet.</string>
     <string name="network_done">Synkronisering slutförd.</string>
     
     <string name="serverURL">http://www.f.kth.se/~eringh/Android/</string>
     <string name="serverInstructionURL">AndroidInstructions.txt</string>
     <string name="serverFileDelimiter">-</string>
     <string name="SongFileEnding">.txt</string>
+    
+    <string name="no_song_found_title">Inga sånger hittades. Du måste synkronisera för att få hem dem.</string>
+    <string name="no_song_found_text">Appen kunde inte hitta några sångar på din enhet. Prova att gå till menyn i förra fönstret och välja \"Synkronisera\" för att ladda hem sånger.\n\n//Din utvecklare</string>
 
 </resources>

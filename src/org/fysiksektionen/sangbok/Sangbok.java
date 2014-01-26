@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -33,7 +34,6 @@ import android.app.Activity;
 import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -58,7 +58,6 @@ import android.widget.Toast;
 public class Sangbok extends Activity {
 	//some class-variables
 	private ArrayAdapter<Sang> sangerView;
-	private AssetManager assetManager;
 	private ListView resList;
 	private List<List<Sang>> sangerList;
 	
@@ -73,7 +72,6 @@ public class Sangbok extends Activity {
         setTitle( getString(R.string.app_label) );
         
         //Set-up the linkings
-        assetManager = getAssets();
         sangerView = new ArrayAdapter<Sang>(this, android.R.layout.simple_list_item_1);
         resList = (ListView) findViewById(R.id.resultList);
         resList.setAdapter(sangerView);
@@ -147,15 +145,11 @@ public class Sangbok extends Activity {
     		sangerList.add( new ArrayList<Sang>() );
     	}
         //Work with assets and find all files with correct ending
-        String[] files = null;
+        File[] files = null;
         Sang temp;
-        try{
-        files = assetManager.list("");
-        } catch(IOException e) {
-        	e.printStackTrace();
-        }
-        for (String file : files) {
-            if(file.toLowerCase(Locale.ENGLISH).endsWith( getString(R.string.SongFileEnding) )){
+        files = getFilesDir().listFiles();
+        for (File file : files) {
+            if(file.getPath().toLowerCase(Locale.ENGLISH).endsWith( getString(R.string.SongFileEnding).toLowerCase(Locale.ENGLISH) )){
             	//Make a Song of the .txt-file and add to the list
             	temp = readSangFromFile( file );
             	sangerView.add( temp );
@@ -166,85 +160,90 @@ public class Sangbok extends Activity {
              }
         }
         sangerView.sort( Sang.getChapterComparator() );
+        if( sangerView.isEmpty() ) {//If no data is found tell the user what to do
+        	sangerList.add( new ArrayList<Sang>() );
+        	sangerList.get(sangerList.size()-1).add( new Sang(getString(R.string.no_song_found_title), "", getString(R.string.no_song_found_text), "", 0, 0) );
+        	sangerView.add( new Sang(getString(R.string.no_song_found_title), "", getString(R.string.no_song_found_text), "", 0, 0) );
+        }
         sangerView.notifyDataSetChanged();
     }
     
     /* Open the passed file and process it so that it becomes a nice Song.
 	 * so that the rest of the structure can work abstract with the type Song.
 	 */
-    public Sang readSangFromFile(String file) {
-    	InputStream iS = null; 
+    public Sang readSangFromFile( File file ) {
     	Sang retSang = new Sang();
-    	retSang.setTitle(file);
-    	retSang.setChapter( Character.getNumericValue(file.charAt(0)) ); //first character i chapter number
-    	retSang.setNumber( Integer.parseInt( file.substring(2, file.length()-4) ) ); //then comes - and then the rest except .txt is the song number within that chapter
+    	String path = file.getPath();
+    	int basePathLength = getFilesDir().getPath().length();
+    	retSang.setTitle( path );
+    	retSang.setChapter( Character.getNumericValue(path.charAt(basePathLength+1)) ); //first character i chapter number
+    	retSang.setNumber( Integer.parseInt( path.substring(basePathLength+3, path.length()-4) ) ); //then comes - and then the rest except .txt is the song number within that chapter
         //get the file as a stream 
         try{
-        iS = assetManager.open(file);
-        StringBuilder buffer = new StringBuilder();
-        BufferedReader bR= new BufferedReader(new InputStreamReader(iS));
-        String str;
-        int state = -1;
-        while ((str=bR.readLine()) != null) {
-        	//Remove starting whites-paces
-        	while(str.startsWith(" ") ) {
-        		str = str.substring(1);
-        	}
-        	if( str.startsWith("<titel>") ) {
-        		setSangContent(state, retSang, buffer.toString());
-              	state = 0;
-              	str = str.substring(7);
-				//Remove following white-spaces
-				while(str.startsWith(" ") ) {
-					str = str.substring(1);
-				}
-				buffer.setLength(0);
-              	buffer.append(str);
-              	
-        	}else if( str.startsWith("<melodi>") ) {
-        		setSangContent(state, retSang, buffer.toString());
-              	state = 1;
-              	str = str.substring(8);
-				//Remove following white-spaces
-				while(str.startsWith(" ") ) {
-					str = str.substring(1);
-				}
-				buffer.setLength(0);
-              	buffer.append(str);
-        		
-        	}else if( str.startsWith("<text>") ) {
-        		setSangContent(state, retSang, buffer.toString());
-              	state = 2;
-              	str = str.substring(6);
-				//Remove following white-spaces
-				while(str.startsWith(" ") ) {
-					str = str.substring(1);
-				}
-              	buffer.append(str);
-              	buffer.setLength(0);
-              	buffer.append(str);
-        		
-        	}else if( str.startsWith("<author>") ) {
-        		setSangContent(state, retSang, buffer.toString());
-              	state = 3;
-              	str = str.substring(8);
-				//Remove following white-spaces
-				while(str.startsWith(" ") ) {
-					str = str.substring(1);
-				}
-              	buffer.append(str);
-              	buffer.setLength(0);
-              	buffer.append(str);
-        		
-        	}else if(  (str.equals("") || str.equals("\n")) && (state!=2)  ) {}
-        	else {
-        		buffer.append("\n");
-        		buffer.append(str);
-        	}
-        }
-        //When exiting, do what you must with the rest!
-        setSangContent(state, retSang, buffer.toString());
-	    iS.close();
+	        StringBuilder buffer = new StringBuilder();
+	        BufferedReader bR= new BufferedReader( new FileReader(file) );
+	        String str;
+	        int state = -1;
+	        while ((str=bR.readLine()) != null) {
+	        	//Remove starting whites-paces
+	        	while(str.startsWith(" ") ) {
+	        		str = str.substring(1);
+	        	}
+	        	if( str.startsWith("<titel>") ) {
+	        		setSangContent(state, retSang, buffer.toString());
+	              	state = 0;
+	              	str = str.substring(7);
+					//Remove following white-spaces
+					while(str.startsWith(" ") ) {
+						str = str.substring(1);
+					}
+					buffer.setLength(0);
+	              	buffer.append(str);
+	              	
+	        	}else if( str.startsWith("<melodi>") ) {
+	        		setSangContent(state, retSang, buffer.toString());
+	              	state = 1;
+	              	str = str.substring(8);
+					//Remove following white-spaces
+					while(str.startsWith(" ") ) {
+						str = str.substring(1);
+					}
+					buffer.setLength(0);
+	              	buffer.append(str);
+	        		
+	        	}else if( str.startsWith("<text>") ) {
+	        		setSangContent(state, retSang, buffer.toString());
+	              	state = 2;
+	              	str = str.substring(6);
+					//Remove following white-spaces
+					while(str.startsWith(" ") ) {
+						str = str.substring(1);
+					}
+	              	buffer.append(str);
+	              	buffer.setLength(0);
+	              	buffer.append(str);
+	        		
+	        	}else if( str.startsWith("<author>") ) {
+	        		setSangContent(state, retSang, buffer.toString());
+	              	state = 3;
+	              	str = str.substring(8);
+					//Remove following white-spaces
+					while(str.startsWith(" ") ) {
+						str = str.substring(1);
+					}
+	              	buffer.append(str);
+	              	buffer.setLength(0);
+	              	buffer.append(str);
+	        		
+	        	}else if(  (str.equals("") || str.equals("\n")) && (state!=2)  ) {}
+	        	else {
+	        		buffer.append("\n");
+	        		buffer.append(str);
+	        	}
+	        }
+	        //When exiting, do what you must with the rest!
+	        setSangContent(state, retSang, buffer.toString());
+	        bR.close();
         } catch(IOException e) {
 	    	e.printStackTrace();
 	    }
@@ -423,18 +422,24 @@ public class Sangbok extends Activity {
 		    	InputStream is = null;
 		    	InputStream sangStream = null;
 		    	FileOutputStream outputStream = null;
+		    	HttpURLConnection conn = null;
 		        try {
 		        	//Set up connection with the download site
 		            URL url = new URL( getString(R.string.serverURL) + getString(R.string.serverInstructionURL)  );
-		            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+		            conn = (HttpURLConnection) url.openConnection();
 		            conn.setReadTimeout(10000 /* milliseconds */);
 		            conn.setConnectTimeout(15000 /* milliseconds */);
 		            conn.setRequestMethod("GET");
 		            conn.setDoInput(true);
 		            // Starts the query
 		            conn.connect();
-		            is = conn.getInputStream();		            
-		            
+		            is = conn.getInputStream();
+		        }
+	            catch( IOException e ) {
+		        	e.printStackTrace();
+		        	upDate = 3;
+		        }
+		        try{
 		            //Work with the info gotten from the server!
 					InputStreamReader isr = new InputStreamReader(is);
 					BufferedReader ir = new BufferedReader(isr);
@@ -450,6 +455,7 @@ public class Sangbok extends Activity {
 					while( (line = ir.readLine()) != null ) {
 						//First line is the chapter integer
 						readingChpt = Integer.parseInt( line );
+
 						buffer.setLength(0);
 						buffer.append( getString(R.string.serverURL) );
 		              	buffer.append(line);
@@ -457,7 +463,7 @@ public class Sangbok extends Activity {
 		              	buffLen = buffer.length();
 		              	
 		              	//then follows start and stop for song numbers in that chapter
-		              	line = ir.readLine();
+		              	line = ir.readLine();	              	
 		              	start = Integer.parseInt(line);
 		              	line = ir.readLine();
 		              	stop = Integer.parseInt(line);
@@ -465,16 +471,15 @@ public class Sangbok extends Activity {
 		              		buffer.setLength(buffLen);
 		              		buffer.append(i);
 		              		buffer.append( getString(R.string.SongFileEnding) );
-//System.out.println( buffer.toString() );
 		              		conn = (HttpURLConnection) new URL( buffer.toString() ).openConnection();
-				            conn.setReadTimeout(10000 /* milliseconds */);
-				            conn.setConnectTimeout(15000 /* milliseconds */);
+				            conn.setReadTimeout(10000); //miliseconds
+				            conn.setConnectTimeout(15000); //miliseconds
 				            conn.setRequestMethod("GET");
 				            conn.setDoInput(true);
 				            conn.connect();
 				            sangStream = conn.getInputStream();
 				            //Write the songs to file
-				            outputStream = openFileOutput( Integer.toString(readingChpt) + getString(R.string.serverFileDelimiter) + getString(R.string.SongFileEnding), Context.MODE_PRIVATE);
+				            outputStream = openFileOutput( Integer.toString(readingChpt) + getString(R.string.serverFileDelimiter) + Integer.toString(i) + getString(R.string.SongFileEnding), Context.MODE_PRIVATE);
 				            outputStream.write(new Scanner(sangStream,"UTF-8").useDelimiter("\\A").next().getBytes());
 				            outputStream.close();
 		              	}
@@ -487,7 +492,11 @@ public class Sangbok extends Activity {
 		        }
 		        catch( IOException e ) {
 		        	e.printStackTrace();
-		        	upDate = 3;
+		        	upDate = 4;
+		        }
+		        catch( NumberFormatException e ) {
+		        	e.printStackTrace();
+		        	upDate = 5;
 		        }
 
 		    }else {//We do not have Internet, display error
@@ -495,20 +504,31 @@ public class Sangbok extends Activity {
 	    	}
 		    return upDate;
 		}
+		/*Help function to write the file.
+		 * To distinguish 
+		 */
 
 		@Override
 		protected void onPostExecute(Integer upDate) {//Deliver a message to the user of how the synchronization went
 			switch( upDate) {
 			case 1:
 				Toast.makeText(Sangbok.this, R.string.network_done, Toast.LENGTH_LONG).show();
-				return;
+				break;
 			case 2:
 				Toast.makeText(Sangbok.this, R.string.network_error, Toast.LENGTH_LONG).show();
-				return;
+				break;
 			case 3:
+				Toast.makeText(Sangbok.this, R.string.network_host_not_found, Toast.LENGTH_LONG).show();
+				break;
+			case 4:
+				Toast.makeText(Sangbok.this, R.string.network_host_bug, Toast.LENGTH_LONG).show();
+				break;
+			case 5:
 				Toast.makeText(Sangbok.this, R.string.network_host_error, Toast.LENGTH_LONG).show();
-				return;
+				break;
 			}
+			//Re-initiate the song lists after synchronization.
+			initLists();
 		}
 	}
 	
