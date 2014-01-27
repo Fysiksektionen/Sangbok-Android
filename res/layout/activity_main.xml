@@ -3,12 +3,25 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-  <LinearLayout
+    
+    <!-- Dummy layout of no size to take focus at start-up.
+    preventing the keyborad to atuomatically show -->
+    <LinearLayout
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:layout_width="0px"
+    android:layout_height="0px"
+    />
+    
+  	<LinearLayout
       android:id="@+id/top_layout"
       android:layout_width="fill_parent"
       android:layout_height="wrap_content"
       android:layout_marginBottom="10dp"
-      android:orientation="horizontal" >
+      android:orientation="horizontal"
+      android:nextFocusUp="@id/top_layout"
+      android:nextFocusLeft="@id/top_layout">
+      
         <EditText android:id="@+id/search_string"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -17,6 +30,7 @@
         android:inputType="text"
         android:imeOptions="actionSearch"
         android:imeActionLabel="@string/search_button"
+        android:windowSoftInputMode="stateHidden"
         />
     
 	    <Button
@@ -24,34 +38,17 @@
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:text="@string/search_button"
-	        android:onClick="onSearchButton" />
-    </LinearLayout>
-    <LinearLayout
-      android:id="@+id/second_top_layout"
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-      android:layout_marginBottom="10dp"
-      android:orientation="horizontal" >
-        <TextView android:id="@+id/what_you_see_is"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text ="@string/what_you_see"
-        android:layout_weight="1"
-        android:gravity="right"
-        />
-        <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text =" "
-        />
-    	<TextView android:id="@+id/what_is_seen"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text ="@string/whole_book"
-        android:layout_weight="1"
-        android:gravity="left"
+	        android:onClick="onSearchButton"
         />
     </LinearLayout>
+    
+   	<TextView android:id="@+id/what_is_seen"
+       android:layout_width="fill_parent"
+       android:layout_height="wrap_content"
+       android:text ="@string/whole_book"
+       android:gravity="center"
+       android:layout_marginBottom="10dp"
+	/>
 
     <ListView
         android:id="@+id/resultList"

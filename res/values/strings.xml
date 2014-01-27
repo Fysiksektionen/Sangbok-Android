@@ -20,7 +20,7 @@
     <string name="search_hint">Sök i sångboken här&#8230;</string>
     <string name="what_you_see">Det du ser är:</string>
     <string name="search_results">sökresultat</string>
-    <string name="no_search_results">Tyvärr inga sökresultat</string>
+    <string name="no_search_results">Hittade tyvärr inga sånger som matchar sökningen.</string>
 
 	<string-array name = "chapter_names">
         <item>Visor till högtid</item>
@@ -44,7 +44,7 @@
     <string name="network_error">Ingen internetåtkomst.\nVar vänlig anslut till WiFi eller tillåt datatrafik.</string>
     <string name="network_host_error">Servern verkar vara felkonfigurerad&#8230;\nHör av dig till din favorit SysAdmin!</string>
     <string name="network_host_not_found">Servern hittades inte, eller så är den felkonfigurerad.</string>
-    <string name="network_host_bug">Okänt fel&#8230;\nPotentiellt hittades inte servern, eller så är den felkonfigurerad.\nAlternativt så misslyckades appen skriva till minnet.</string>
+    <string name="network_memory_bug">Okänt fel&#8230;\nEventuellt så misslyckades appen skriva till minnet.\nKontrollera hur mycket minne som finns kvar.</string>
     <string name="network_done">Synkronisering slutförd.</string>
     
     <string name="serverURL">http://www.f.kth.se/~eringh/Android/</string>

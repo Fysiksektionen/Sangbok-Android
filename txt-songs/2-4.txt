@@ -1,39 +1,41 @@
 <titel>Kalmarevisan  
 
-<melodi>[PRE]Försångare[/PRE]/[ALL]Alla[/ALL]
+<melodi>
+F: Försångare
+A: Alla
 Sjungs lämpligen på småländska.
 
 
 <text>
-[PRE]Uti Kalmare stad
-ja där finns det ingen kvast[/PRE]
-[ALL]förrän lördagen![/ALL]
+F: Uti Kalmare stad
+ja där finns det ingen kvast
+A: förrän lördagen!
 
-[REFR][PRE]Hej dick...[/PRE]
-[ALL]...hej dack![/ALL]
-[PRE]Jag slog i...[/PRE]
-[ALL]...och vi drack![/ALL]
-[PRE]Hej dickom dickom dack![/PRE]
-[ALL]Hej dickom dickom dack!
-För uti Kalmare stad, ja där finns det ingen kvast förrän lördagen![/ALL][/REFR]
+F: Hej dick...
+A: ...hej dack!
+F: Jag slog i...
+A: ...och vi drack!
+F: Hej dickom dickom dack!
+A: Hej dickom dickom dack!
+För uti Kalmare stad, ja där finns det ingen kvast förrän lördagen![/REFR]
 
-[REPR][PRE]När som bonden kommer hem[/PRE]
-[ALL]kommer bondekvinnan ut [/REPR] och är så stor i sin trut.[/ALL]
+||:F: När som bonden kommer hem
+A: kommer bondekvinnan ut :|| och är så stor i sin trut.
 
-[REFR...]
+F: Hej dick...
 
-[REPR][PRE]Var är pengarna du fått?[/PRE]
-[ALL]Jo, dem har jag supit opp[/REPR] uppå Kalmare slott[/ALL]
+||:F: Var är pengarna du fått?
+A: Jo, dem har jag supit opp:|| uppå Kalmare slott
 
-[REFR...]
+F: Hej dick...
 
-[REPR][PRE]Jag skall mäla dig an[/PRE]
-[ALL]för vår kronbefallningsman [/REPR]  och du skall få skam.[/ALL]
+||:F: Jag skall mäla dig an
+A: för vår kronbefallningsman :||  och du skall få skam.
 
-[REFR...]
+F: Hej dick...
 
-[REPR][PRE]Kronbefallningsmannen vår[/PRE]
-[ALL]satt på krogen i går[/REPR] och var full som ett får.[/ALL]
+||:F: Kronbefallningsmannen vår
+A: satt på krogen i går:|| och var full som ett får.
 
-[REFR...]
+F: Hej dick...
 

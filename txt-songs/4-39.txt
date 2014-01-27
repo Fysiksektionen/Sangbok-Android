@@ -1,0 +1,13 @@
+<titel>
+Krök armen
+
+<melodi>
+Väva vadmal
+
+<text>
+Krök armen i vinken, 
+här vankas det finkel. 
+Och vanka finkel 
+och finka vankel 
+och kröka armen i finkel. 
+Här vankas det vinkel. 

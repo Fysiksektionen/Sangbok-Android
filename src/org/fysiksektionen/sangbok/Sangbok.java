@@ -1,56 +1,37 @@
 package org.fysiksektionen.sangbok;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Scanner;
-
-import org.fysiksektionen.sangbok.domain.Song;
-import org.fysiksektionen.sangbok.network.HttpClient;
-import org.fysiksektionen.sangbok.network.RESTClient;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.R.integer;
 import android.app.Activity;
-import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
-//import android.widget.ExpandableListView;
 import android.widget.ListView;
-//import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
@@ -69,7 +50,11 @@ public class Sangbok extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
+        //Fix some layout details
         setTitle( getString(R.string.app_label) );
+    	TextView textView = (TextView) findViewById(R.id.what_is_seen);
+    	textView.setText( getString(R.string.what_you_see) + " " + getString(R.string.whole_book) );
+
         
         //Set-up the linkings
         sangerView = new ArrayAdapter<Sang>(this, android.R.layout.simple_list_item_1);
@@ -198,7 +183,9 @@ public class Sangbok extends Activity {
 						str = str.substring(1);
 					}
 					buffer.setLength(0);
-	              	buffer.append(str);
+					if( !str.equals("") ) {
+						buffer.append(str);
+					}
 	              	
 	        	}else if( str.startsWith("<melodi>") ) {
 	        		setSangContent(state, retSang, buffer.toString());
@@ -237,7 +224,9 @@ public class Sangbok extends Activity {
 	        		
 	        	}else if(  (str.equals("") || str.equals("\n")) && (state!=2)  ) {}
 	        	else {
-	        		buffer.append("\n");
+	        		if( !buffer.toString().equals("") ) { //If a tag is on a own row then the buffer will be empty first time it reaches here, do not append newline character.
+	        			buffer.append("\n");
+	        		}
 	        		buffer.append(str);
 	        	}
 	        }
@@ -289,14 +278,14 @@ public class Sangbok extends Activity {
 		String searchString = editText.getText().toString();
 		if( searchString.equals("") ) { //If no search string show complete book
 			showAllSang();
-			textView.setText( R.string.whole_book );
+			textView.setText( getString(R.string.what_you_see) + " " + getString(R.string.whole_book) );
 			return;
 		}
     	searchSubStr( searchString ); //Do the actual search!
     	if (sangerView.isEmpty() ) { //We dodn't find anything
     		textView.setText( R.string.no_search_results );
     	}else{//We found something
-    		textView.setText( R.string.search_results );
+    		textView.setText( getString(R.string.what_you_see) + " " + getString(R.string.search_results) );
     	}
     	return;
     }
@@ -310,9 +299,9 @@ public class Sangbok extends Activity {
 		if( id >= 0 && id <= sangerList.size() ) {
 			showChpt( id );
 			TextView textView = (TextView) findViewById(R.id.what_is_seen);
-			String seen ="";
-			if( id != sangerList.size() ) seen = getString(R.string.view_chpt) + " ";
-		    textView.setText( seen + item.getTitle() );
+			String seen =" ";
+			if( id != sangerList.size() ) seen = " " + getString(R.string.view_chpt) + " ";
+		    textView.setText( getString(R.string.what_you_see) + seen + item.getTitle() );
 			return true;
 		}
 		switch (id) {
@@ -438,6 +427,7 @@ public class Sangbok extends Activity {
 	            catch( IOException e ) {
 		        	e.printStackTrace();
 		        	upDate = 3;
+		        	return upDate;
 		        }
 		        try{
 		            //Work with the info gotten from the server!
@@ -492,11 +482,18 @@ public class Sangbok extends Activity {
 		        }
 		        catch( IOException e ) {
 		        	e.printStackTrace();
-		        	upDate = 4;
+		        	if( e.getMessage().startsWith("http://") ){
+		        		upDate = 5;
+		        		return upDate;
+		        	}else {
+			        	upDate = 4;
+			        	return upDate;
+		        	}
 		        }
 		        catch( NumberFormatException e ) {
 		        	e.printStackTrace();
 		        	upDate = 5;
+		        	return upDate;
 		        }
 
 		    }else {//We do not have Internet, display error
@@ -521,7 +518,7 @@ public class Sangbok extends Activity {
 				Toast.makeText(Sangbok.this, R.string.network_host_not_found, Toast.LENGTH_LONG).show();
 				break;
 			case 4:
-				Toast.makeText(Sangbok.this, R.string.network_host_bug, Toast.LENGTH_LONG).show();
+				Toast.makeText(Sangbok.this, R.string.network_memory_bug, Toast.LENGTH_LONG).show();
 				break;
 			case 5:
 				Toast.makeText(Sangbok.this, R.string.network_host_error, Toast.LENGTH_LONG).show();

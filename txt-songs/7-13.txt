@@ -1,0 +1,23 @@
+<titel>
+1, 2, 3, Whisky!
+
+<melodi>
+Siffersången (Fem myror)
+
+<author>
+Didrik Lundberg, 2011
+
+<text>
+Glenlivet,
+Highland Park,
+Glegoyne,
+Glenmorangie,
+Oban,
+Isle of Jura,
+Lagavulin, Bowmore, Ardbeg
+** Laphroig!
+Talisker,
+Macallan,
+Knockando,
+Glenfarclas,
+Clynelish!

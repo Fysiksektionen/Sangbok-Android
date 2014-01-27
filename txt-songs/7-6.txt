@@ -1,0 +1,11 @@
+<titel>
+Mjölksång
+
+<melodi>
+Mors lilla Olle
+
+<text>
+Vad dom kan göra i vårt mejeri!
+Mjölk kan dom tillverka med grejer i.
+Lättmjölk och folkmjölk och starkmjölk är bra.
+Dom ska vi dricka imorgon, hurra!
