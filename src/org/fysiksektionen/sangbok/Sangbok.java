@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
@@ -52,8 +53,6 @@ public class Sangbok extends Activity {
         
         //Fix some layout details
         setTitle( getString(R.string.app_label) );
-    	TextView textView = (TextView) findViewById(R.id.what_is_seen);
-    	textView.setText( getString(R.string.what_you_see) + " " + getString(R.string.whole_book) );
 
         
         //Set-up the linkings
@@ -137,19 +136,28 @@ public class Sangbok extends Activity {
             if(file.getPath().toLowerCase(Locale.ENGLISH).endsWith( getString(R.string.SongFileEnding).toLowerCase(Locale.ENGLISH) )){
             	//Make a Song of the .txt-file and add to the list
             	temp = readSangFromFile( file );
-            	sangerView.add( temp );
             	while( temp.getChapter() > sangerList.size() ) {//Error handling, if trying to add to a chapter larger than defined...
             		sangerList.add( new ArrayList<Sang>() );
             	}
             	sangerList.get( temp.getChapter()-1 ).add( temp );
              }
         }
-        sangerView.sort( Sang.getChapterComparator() );
+        //Sort all chapters so that standard is according to Chapter-sorting
+        for( int i = 0; i < sangerList.size(); ++i ) {
+        	Collections.sort( sangerList.get(i), Sang.getChapterComparator() );
+        	for( Sang add : sangerList.get(i) ) {
+        		sangerView.add( add );
+        	}
+        }
+//        sangerView.sort( Sang.getChapterComparator() );
         if( sangerView.isEmpty() ) {//If no data is found tell the user what to do
         	sangerList.add( new ArrayList<Sang>() );
         	sangerList.get(sangerList.size()-1).add( new Sang(getString(R.string.no_song_found_title), "", getString(R.string.no_song_found_text), "", 0, 0) );
         	sangerView.add( new Sang(getString(R.string.no_song_found_title), "", getString(R.string.no_song_found_text), "", 0, 0) );
         }
+        //Update the visual part
+        TextView textView = (TextView) findViewById(R.id.what_is_seen);
+    	textView.setText( getString(R.string.what_you_see) + " " + getString(R.string.whole_book) );
         sangerView.notifyDataSetChanged();
     }
     
@@ -329,10 +337,13 @@ public class Sangbok extends Activity {
 	        sangerView.notifyDataSetChanged();
 			return true;
 		case R.id.view_chpt:
+			//Take care of above... This is the menu option opening the sub-menu whose alternative taken care above if the if-statement
 			return true;
 		case R.id.sync:
 			new sync().execute();
 			return true;
+		case R.id.menu_settings:
+			Toast.makeText(Sangbok.this, R.string.not_implemented, Toast.LENGTH_LONG).show();
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -443,6 +454,7 @@ public class Sangbok extends Activity {
 					ir.readLine();
 					//Then work as long as there are rows left. The come in pairs of three.
 					while( (line = ir.readLine()) != null ) {
+						line = line.trim();
 						//First line is the chapter integer
 						readingChpt = Integer.parseInt( line );
 
@@ -453,9 +465,9 @@ public class Sangbok extends Activity {
 		              	buffLen = buffer.length();
 		              	
 		              	//then follows start and stop for song numbers in that chapter
-		              	line = ir.readLine();	              	
+		              	line = ir.readLine().trim();	              	
 		              	start = Integer.parseInt(line);
-		              	line = ir.readLine();
+		              	line = ir.readLine().trim();
 		              	stop = Integer.parseInt(line);
 		              	for( int i=start; i<=stop; ++i ) {
 		              		buffer.setLength(buffLen);
