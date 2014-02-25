@@ -165,12 +165,15 @@ public class Sangbok extends Activity {
 	 * so that the rest of the structure can work abstract with the type Song.
 	 */
     public Sang readSangFromFile( File file ) {
+    	assert( getString(R.string.SongFileEnding).matches("(?i).*"+getString(R.string.serverFileDelimiter)+".*") ); //The file ending must not contain the character that is used in separating chapter-number from song-number in the file names. If so the code will fail and hence we make assertion fail instead.
     	Sang retSang = new Sang();
     	String path = file.getPath();
     	int basePathLength = getFilesDir().getPath().length();
     	retSang.setTitle( path );
-    	retSang.setChapter( Character.getNumericValue(path.charAt(basePathLength+1)) ); //first character i chapter number
-    	retSang.setNumber( Integer.parseInt( path.substring(basePathLength+3, path.length()-4) ) ); //then comes - and then the rest except .txt is the song number within that chapter
+    	String[] split = path.split( getString(R.string.serverFileDelimiter) );
+    	int splitLen = split.length;
+    	retSang.setChapter( Integer.parseInt( split[splitLen-2].substring(basePathLength+1) ) ); //read all numbers starting after the base path up to delimiter
+    	retSang.setNumber( Integer.parseInt( split[splitLen-1].substring(0, split[splitLen-1].length()-getString(R.string.SongFileEnding).length() ) ) ); //after the - it is number and thus the rest except .txt is the song number within that chapter
         //get the file as a stream 
         try{
 	        StringBuilder buffer = new StringBuilder();

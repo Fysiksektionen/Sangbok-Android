@@ -1,0 +1,74 @@
+<titel>
+Årskursernas hederssång
+
+<text>
+Alla: För det var i vår ungdoms fagraste vår,
+vi drack varandra till och vi sade "gutår".
+Och alla så dricka vi nu <Foo> till,
+
+Foo: Och <Foo> säger inte nej därtill...
+
+Vid <Foo> insättes n-m, där n=aktuellt årtal, m=0, 1, 2...
+35 Fux
+42 Fibonacci
+51 Filibuster
+54 Fafner
+55 Femfemman
+56 Fjalar
+57 Fimbul
+58 Fatal
+59 Fritiof
+60 Fredag
+61 Fulbia
+62 Figaro
+63 Fter
+64 Fyran
+65 Frukt
+66 Födde
+67 Fnark
+68 Flirp
+69 Fiasko
+70 Flera
+71 Funilla
+72 Fillhouse
+73 Fadäs
+74 Förutan
+75 Finans
+76 Filur
+77 Fräck
+78 Fyffes
+79 Fnusk
+80 Fuktig
+81 Flykting
+82 Fiqus
+83 Fikon
+84 Filmjölk
+85 Fortsätt!
+86 Flyter
+87 Fnöske
+88 Flora
+89 Fagott
+90 FemFel
+91 Fjortis
+92 Fido
+93 Fromhet
+94 Flaxa
+95 Ferdinand
+96 Felande Länken
+97 Fängsel
+98 Folkdans
+99 Fulöl
+00 Formfranska
+01 Flykta!
+02 Fusklapp
+03 Fetvadd
+04 FanFar
+05 Flörtfrisk
+06 Friskus
+07 Fokus
+08 Førspel
+09 Falsklarm
+10 Framfusig
+11 Frappera
+12 Fumla
+13 Frågvis

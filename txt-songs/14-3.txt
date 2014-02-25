@@ -1,0 +1,35 @@
+<titel>
+De Brevitate Vitae (Gaudeamus)
+
+<author>
+Biskop Stada 1267,
+C.W. Kindleben 1781
+
+<text>
+||: Gaudeamus igitur, iuvenes dum sumus! :||
+Post icundam iuventutem, post molestam senectutem
+||: nos habebit humus. :||
+
+||: Ubi sunt, qui ante nos in mundo fuere?:||
+Vadite ad superos, transite ad inferos,
+||: ubi iam fuere!:||
+
+||: Vita nostra brevis est, brevi finietur,:||
+venit mors velociter, rapit nos atrociter,
+||: nemini parcetur.:||
+
+||: Vivat academia, vivant professores!:||
+Vivat membra quaelibet, vivant membran quaelibet
+||: semper sint in flore!:||
+
+||: Vivant omnes virgines, graciles formosae!:||
+Vivant et mulieres, tenerae,
+||: amabiles bonae laboriosae!:||
+
+||: Vivat et respublica et qui illam regit!:||
+Vivat nostra civitas, Maecenatum caritas,
+||: quae nos hic protegit!:||
+
+||: Pereat tristitia, pereant osores!:||
+Pereat diabolus, quivis antiburschius,
+||: atque irrisores! :|| 
