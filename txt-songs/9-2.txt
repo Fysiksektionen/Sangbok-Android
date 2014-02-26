@@ -1,0 +1,44 @@
+<titel>
+Integralkalkylens fader
+
+<melodi>
+Sveriges fana
+SF1602 Differential- och integralkalkyl II
+
+<text>
+Integralkalkylens fader, 
+G W Leibniz hette han. 
+Han blev trött på att skriva rader 
+Av plustecken efter varann. 
+
+Så han tänkte: 
+"Das Wort Summe, 
+Es beginnt ja mit ein S". 
+Och han sade, 
+Och han gjorde 
+Integrationssymbolen av sitt S. 
+
+Integralkalkylens fader 
+Fick iden för länge se'n, 
+Den elfte uti november 
+Sextonhudra-sjuttifem. 
+Se'n det året, 
+Se'n den dagen, 
+Vi skriver det tecknet så. 
+Och vi räknar 
+Och kalkylerar, 
+Integralens tecken kan man lita på. 
+
+Och idag vi tecknet hylla 
+Det löser alla problem. 
+Det lyckas vår fritid fylla 
+Med dx och med dt:n. 
+Ja, må det leva, 
+Ja, må det leva 
+I många hundrade år. 
+Så att våra barn 
+Och våra barnbarn 
+Integralens tecken lära får. 
+
+<author>
+Skriven till integralens 300-årsdag 1975-11-11.

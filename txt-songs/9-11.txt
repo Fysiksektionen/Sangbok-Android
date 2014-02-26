@@ -1,0 +1,20 @@
+<titel>
+Elämnenas lov
+
+<melodi>
+Trink, Trink
+EI1240 Teoretisk elektroteknik
+
+<author>
+
+<text>
+Ström, ström, vi vill ha ström, 
+Det är vår senaste dröm. 
+Ström, ström, vi vill ha ström, 
+Det är vår senaste dröm. 
+
+Shunta din MOS 
+Och bottna din FET 
+Och ge mig en puls utav det. 
+Slut upp i kampen för Elmät och TET, 
+Ström är det bästa vi vet! 

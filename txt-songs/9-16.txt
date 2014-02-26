@@ -1,0 +1,19 @@
+<titel>
+Kemisången
+
+<melodi>
+Studentsången
+
+<author>
+
+<text>
+Sn   As   B   Pt   Br
+Na   Tl   Pr 
+P   Pd   N   Cr
+Er   I   Xe   Nd
+Gd   Hg   Pb   Zr
+Pa   Fe   Bi   Cl   Rn
+V   C   Se   Mo
+Al   Si   Ar
+Al   Si   Ar
+U!

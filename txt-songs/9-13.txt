@@ -1,0 +1,40 @@
+<titel>
+Aris summavisa
+
+<melodi>
+Idas sommarvisa
+SF1628 Komplex analys
+
+<author>
+Mikael Winai 2001
+
+<text>
+Du ska inte tro att en summa 
+blir alls vad den ser ut att va', 
+ja summor kan va' lite krångligt 
+det gäller att arbeta smart. 
+
+Jag gör alla index till blommor 
+jag gör konvergensradien grön, 
+och nu så har serien bli'tt konvergent 
+för jag har just trollat bort n. 
+
+Jag gör några byten av tecken 
+- det blev visst Laurentserien kvar. 
+Jag gör integraler så dryga 
+men summan blir sist ganska rar. 
+
+Jag gör residyer på tvären 
+med nå'n enkelpol här och där. 
+Jag gör en Maclaurin av ln 
+och sedan så är svaret där. 
+
+Och KS:ar gör jag åt F:arna 
+(för det tycker Bengt de ska få) 
+med många små roliga saker 
+som passar till kunskaper små. 
+
+Och jag gör små roliga ställen 
+där kurvan är snirklig och fin. 
+Då blir bladen fulla med summor 
+och svaren blir fulla med π:n 
