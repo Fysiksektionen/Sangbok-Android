@@ -52,7 +52,7 @@
     <string name="serverFileDelimiter">-</string>
     <string name="SongFileEnding">.txt</string>
     
-    <string name="no_song_found_title">Inga sånger hittades. Du måste synkronisera för att få hem dem.</string>
+    <string name="no_song_found_title">Inga sånger hittades. Du måste synkronisera (titta i menyn) och ladda hem dem.</string>
     <string name="no_song_found_text">Appen kunde inte hitta några sångar på din enhet. Prova att gå till menyn i förra fönstret och välja \"Synkronisera\" för att ladda hem sånger.\n\n//Din utvecklare</string>
     
     <string name="not_implemented">Denna funktion är inte implementerad ännu.</string>

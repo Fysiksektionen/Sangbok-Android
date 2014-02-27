@@ -1,4 +1,4 @@
-<hej och välkommen> Syntaxen för denna fil är som följer: Första raden är bara skräp och instruktioner som kastas av Applikationen. Sen kommer raderna i grupper om 3. 1) Kapitel, 2) Första numret på sång i kapitlet, 3) Sista numret på sång i kapitlet. Alla dessa filar måste sedan finnas på formatet <kapitel>-<sångnummder>.filändelse tex 3-4.txt för sång 4 i kapitel 3 om man använder filändelse .txt     !!!OBS: Var noggran vi konfigurationen av denna textfil! Man får inte ha något annat än siffror på raderna, annars misslyckas appen att läsa det!!!
+<hej och välkommen> Syntaxen för denna fil är som följer: Första raden är bara skräp och instruktioner som kastas av Applikationen. Sen kommer raderna i grupper om 3. 1) Kapitelnummret, 2) Första numret på sång i kapitlet, 3) Sista numret på sång i kapitlet.    Alla nummer emellan första och sista måste finnas som filer på formatet <kapitel>-<sångnummder>.filändelse    tex 3-4.txt för sång 4 i kapitel 3 om man använder filändelse .txt     Detta är alla sånger som appen kommer att ladda ned            !!!OBS: Var noggran vi konfigurationen av denna textfil! Man får inte ha något annat än siffror på raderna, annars misslyckas appen att läsa det!!!
 1 
  1
  5
@@ -29,6 +29,15 @@
 10
  1
  14
+11
+ 1
+ 13
+12
+ 1
+ 7
+13
+ 1
+ 17
 14
  1
  6
