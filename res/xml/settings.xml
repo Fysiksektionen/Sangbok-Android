@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+	<EditTextPreference
+        android:key="server_URL"
+        android:title="@string/settings_server_URL_title"
+        android:defaultValue="@string/serverURL"
+	    />
+	
+	<EditTextPreference
+        android:key="server_instruction_URL"
+        android:title="@string/settings_server_instruction_URL_title"
+        android:defaultValue="@string/serverInstructionURL"
+	    />
+	
+	<EditTextPreference
+        android:key="number_delimiter"
+        android:title="@string/number_delimiter_title"
+        android:defaultValue="@string/serverFileDelimiter"
+	    />
+	
+	<EditTextPreference
+        android:key="file_ending"
+        android:title="@string/file_ending_title"
+        android:defaultValue="@string/SongFileEnding"
+	    />
+
+</PreferenceScreen>

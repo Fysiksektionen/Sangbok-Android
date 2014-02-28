@@ -21,6 +21,7 @@
             android:label="@string/title_activity_main" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -31,6 +32,10 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.fysiksektionen.sangbok.Sangbok" />
+        </activity>
+        <activity
+            android:name="org.fysiksektionen.sangbok.SettingsActivity"
+            android:label="@string/menu_settings" >
         </activity>
     </application>
 

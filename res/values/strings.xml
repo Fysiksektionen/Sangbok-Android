@@ -1,10 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- Strings related App-name and activity names etc. -->
     <string name="app_name">Sangbok</string>
     <string name="app_label">Sångbok för Fysiksektionen</string>
     <string name="title_activity_main">Sångbok</string>
+    <string name="title_activity_display_sang">Sången:</string>
+    <string name="title_activity_settings">Inställningar</string>
     
+    <!-- Strings related to menus etc. -->
     <string name="menu_settings">Inställningar</string>
    	<string name="sync">Synkronisera</string>
     <string name="alph_sort">Sorterad alfabetiskt</string>
@@ -14,14 +18,16 @@
     <string name="font_dec">Minska typsnitt</string>
     <string name="view_chpt">Kapitel</string>
     <string name="whole_book">Hela sångboken</string>
+     <string name="restore_def">Återställ till default</string>
     
-
+	<!-- Strings related to Searching and displaying -->
     <string name="search_button">Sök</string>
     <string name="search_hint">Sök i sångboken här&#8230;</string>
     <string name="what_you_see">Det du ser är:</string>
     <string name="search_results">sökresultat</string>
     <string name="no_search_results">Hittade tyvärr inga sånger som matchar sökningen.</string>
 
+    <!-- Chapters in the book -->
 	<string-array name = "chapter_names">
         <item>Visor till högtid</item>
 	    <item>Visor till gasque</item>
@@ -39,22 +45,32 @@
 	    <item>Visor till Fysiker</item>
     </string-array>
     
-    <string name="title_activity_display_sang">Sången:</string>
-    
+    <!-- Strings related to Network and Sync -->
     <string name="network_error">Ingen internetåtkomst.\nVar vänlig anslut till WiFi eller tillåt datatrafik.</string>
     <string name="network_host_error">Servern verkar vara felkonfigurerad&#8230;\nHör av dig till din favorit SysAdmin!</string>
-    <string name="network_host_not_found">Servern hittades inte, eller så är den felkonfigurerad.</string>
+    <string name="network_host_not_found">Servern hittades inte, prova att återställa dina värden till default.\nDet kan vara så att servern är felkonfigurerad.</string>
     <string name="network_memory_bug">Okänt fel&#8230;\nEventuellt så misslyckades appen skriva till minnet.\nKontrollera hur mycket minne som finns kvar.</string>
     <string name="network_done">Synkronisering slutförd.</string>
+    
+    
+    <!-- Strings related to Settings -->
+    <string name="settings_server_URL_title">Server URL (http://&#8230;)</string>
+    <string name="settings_server_instruction_URL_title">Namn på instruktionsfilen</string>
+    <string name="number_delimiter_title">Kapitel/sång avskiljare</string>
+    <string name="file_ending_title">Filändelse</string>
+    <string name="reset_done">Default-värdena är återställda</string>
     
     <string name="serverURL">http://www.f.kth.se/~eringh/Android/</string>
     <string name="serverInstructionURL">AndroidInstructions.txt</string>
     <string name="serverFileDelimiter">-</string>
     <string name="SongFileEnding">.txt</string>
     
-    <string name="no_song_found_title">Inga sånger hittades. Du måste synkronisera (titta i menyn) och ladda hem dem.</string>
-    <string name="no_song_found_text">Appen kunde inte hitta några sångar på din enhet. Prova att gå till menyn i förra fönstret och välja \"Synkronisera\" för att ladda hem sånger.\n\n//Din utvecklare</string>
     
+    <!-- No songs downloaded-help -->
+    <string name="no_song_found_title">Inga sånger hittades. Klicka här för mer information.</string>
+    <string name="no_song_found_text">Appen kunde inte hitta några sångar på din enhet. Prova att gå till menyn i förra fönstret och välja \"Synkronisera\" för att ladda hem sånger.\nAlternativt så har du varit inne i \"Inställningar\" och ändrat på filänderlser/avskiljare. Du kan prova med att gå tillbaka dit och återställa till default värden.\n\n//Din utvecklare</string>
+    
+    <!-- Not implemented yet, DEV-thing... -->
     <string name="not_implemented">Denna funktion är inte implementerad ännu.</string>
 
 </resources>

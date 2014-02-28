@@ -19,9 +19,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -45,9 +47,20 @@ public class Sangbok extends Activity {
 	
 	private Menu myMenu;
 	private boolean alphSortMenuItem = true;
+	private boolean RETURN_FROM_SETTINGS = false;
+	
+	@Override
+	public void onResume(){
+		super.onResume();
+		if( RETURN_FROM_SETTINGS ) {
+			initLists();
+		}
+		RETURN_FROM_SETTINGS = false;
+	}
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
+    	PreferenceManager.setDefaultValues(this, R.xml.settings, false);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
@@ -132,8 +145,10 @@ public class Sangbok extends Activity {
         File[] files = null;
         Sang temp;
         files = getFilesDir().listFiles();
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(Sangbok.this);
+		String fileEnding = sharedPrefs.getString("file_ending",getString(R.string.SongFileEnding));
         for (File file : files) {
-            if(file.getPath().toLowerCase(Locale.ENGLISH).endsWith( getString(R.string.SongFileEnding).toLowerCase(Locale.ENGLISH) )){
+            if(file.getPath().toLowerCase(Locale.ENGLISH).endsWith( fileEnding.toLowerCase(Locale.ENGLISH) )){
             	//Make a Song of the .txt-file and add to the list
             	temp = readSangFromFile( file );
             	while( temp.getChapter() > sangerList.size() ) {//Error handling, if trying to add to a chapter larger than defined...
@@ -165,15 +180,20 @@ public class Sangbok extends Activity {
 	 * so that the rest of the structure can work abstract with the type Song.
 	 */
     public Sang readSangFromFile( File file ) {
-    	assert( getString(R.string.SongFileEnding).matches("(?i).*"+getString(R.string.serverFileDelimiter)+".*") ); //The file ending must not contain the character that is used in separating chapter-number from song-number in the file names. If so the code will fail and hence we make assertion fail instead.
+    	SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(Sangbok.this);
+		String numDelimiter = sharedPrefs.getString("number_delimiter",getString(R.string.serverFileDelimiter));
+		String fileEnding = sharedPrefs.getString("file_ending",getString(R.string.SongFileEnding));
+    	assert( fileEnding.matches("(?i).*" + numDelimiter + ".*") ); //The file ending must not contain the character that is used in separating chapter-number from song-number in the file names. If so the code will fail and hence we make assertion fail instead.
     	Sang retSang = new Sang();
     	String path = file.getPath();
     	int basePathLength = getFilesDir().getPath().length();
     	retSang.setTitle( path );
-    	String[] split = path.split( getString(R.string.serverFileDelimiter) );
+    	String[] split = path.split( numDelimiter );
     	int splitLen = split.length;
     	retSang.setChapter( Integer.parseInt( split[splitLen-2].substring(basePathLength+1) ) ); //read all numbers starting after the base path up to delimiter
-    	retSang.setNumber( Integer.parseInt( split[splitLen-1].substring(0, split[splitLen-1].length()-getString(R.string.SongFileEnding).length() ) ) ); //after the - it is number and thus the rest except .txt is the song number within that chapter
+    	if( split[splitLen-1].length() > fileEnding.length() ) {
+    		retSang.setNumber( Integer.parseInt( split[splitLen-1].substring(0, split[splitLen-1].length()-fileEnding.length() ) ) ); //after the - it is number and thus the rest except .txt is the song number within that chapter
+    	}
         //get the file as a stream 
         try{
 	        StringBuilder buffer = new StringBuilder();
@@ -346,7 +366,9 @@ public class Sangbok extends Activity {
 			new sync().execute();
 			return true;
 		case R.id.menu_settings:
-			Toast.makeText(Sangbok.this, R.string.not_implemented, Toast.LENGTH_LONG).show();
+			RETURN_FROM_SETTINGS = true;
+			Intent intent = new Intent(Sangbok.this, SettingsActivity.class);
+        	startActivity(intent);
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -421,6 +443,11 @@ public class Sangbok extends Activity {
 			Integer upDate = 1;
 			ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 			NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+			SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(Sangbok.this);
+			String serverURL = sharedPrefs.getString("server_URL",getString(R.string.serverURL));
+			String instructionURL = sharedPrefs.getString("server_instruction_URL",getString(R.string.serverInstructionURL));
+			String numDelimiter = sharedPrefs.getString("number_delimiter",getString(R.string.serverFileDelimiter));
+			String fileEnding = sharedPrefs.getString("file_ending",getString(R.string.SongFileEnding));
 		    if (networkInfo != null && networkInfo.isConnected()) {//We have Internet. Time to sync!
 		    	InputStream is = null;
 		    	InputStream sangStream = null;
@@ -428,7 +455,7 @@ public class Sangbok extends Activity {
 		    	HttpURLConnection conn = null;
 		        try {
 		        	//Set up connection with the download site
-		            URL url = new URL( getString(R.string.serverURL) + getString(R.string.serverInstructionURL)  );
+		            URL url = new URL( serverURL + instructionURL  );
 		            conn = (HttpURLConnection) url.openConnection();
 		            conn.setReadTimeout(10000 /* milliseconds */);
 		            conn.setConnectTimeout(15000 /* milliseconds */);
@@ -462,9 +489,9 @@ public class Sangbok extends Activity {
 						readingChpt = Integer.parseInt( line );
 
 						buffer.setLength(0);
-						buffer.append( getString(R.string.serverURL) );
+						buffer.append( serverURL );
 		              	buffer.append(line);
-		              	buffer.append( getString(R.string.serverFileDelimiter) );
+		              	buffer.append( numDelimiter );
 		              	buffLen = buffer.length();
 		              	
 		              	//then follows start and stop for song numbers in that chapter
@@ -475,7 +502,7 @@ public class Sangbok extends Activity {
 		              	for( int i=start; i<=stop; ++i ) {
 		              		buffer.setLength(buffLen);
 		              		buffer.append(i);
-		              		buffer.append( getString(R.string.SongFileEnding) );
+		              		buffer.append( fileEnding );
 		              		conn = (HttpURLConnection) new URL( buffer.toString() ).openConnection();
 				            conn.setReadTimeout(10000); //miliseconds
 				            conn.setConnectTimeout(15000); //miliseconds
@@ -484,7 +511,7 @@ public class Sangbok extends Activity {
 				            conn.connect();
 				            sangStream = conn.getInputStream();
 				            //Write the songs to file
-				            outputStream = openFileOutput( Integer.toString(readingChpt) + getString(R.string.serverFileDelimiter) + Integer.toString(i) + getString(R.string.SongFileEnding), Context.MODE_PRIVATE);
+				            outputStream = openFileOutput( Integer.toString(readingChpt) + numDelimiter + Integer.toString(i) + fileEnding, Context.MODE_PRIVATE);
 				            outputStream.write(new Scanner(sangStream,"UTF-8").useDelimiter("\\A").next().getBytes());
 				            outputStream.close();
 		              	}
