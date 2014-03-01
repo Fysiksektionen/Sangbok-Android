@@ -183,11 +183,11 @@ public class Sangbok extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
 		
-		if( id >= 0 && id <= sangerList.size() ) {
+		if( id >= 0 && id <= getResources().getStringArray(R.array.chapter_names).length ) {
 			showChpt( id );
 			TextView textView = (TextView) findViewById(R.id.what_is_seen);
 			String seen =" ";
-			if( id != sangerList.size() ) seen = " " + getString(R.string.view_chpt) + " ";
+			if( id != getResources().getStringArray(R.array.chapter_names).length ) seen = " " + getString(R.string.view_chpt) + " ";
 		    textView.setText( getString(R.string.what_you_see) + seen + item.getTitle() );
 			return true;
 		}
@@ -243,7 +243,7 @@ public class Sangbok extends Activity {
 	 */
 	private void showChpt( int chapter ) {
 		if( chapter > sangerList.size() ) return;
-		if( chapter == sangerList.size() ) {
+		if( chapter == getResources().getStringArray(R.array.chapter_names).length ) {
 			showAllSang();
 			return;
 		}
