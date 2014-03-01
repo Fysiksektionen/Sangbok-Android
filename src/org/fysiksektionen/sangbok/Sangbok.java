@@ -1,16 +1,13 @@
 package org.fysiksektionen.sangbok;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
@@ -49,14 +46,18 @@ public class Sangbok extends Activity {
 	private boolean alphSortMenuItem = true;
 	private boolean RETURN_FROM_SETTINGS = false;
 	
+	private SangLister sL;
+	
+	
 	@Override
 	public void onResume(){
 		super.onResume();
 		if( RETURN_FROM_SETTINGS ) {
-			initLists();
+			sL.initLists();
 		}
 		RETURN_FROM_SETTINGS = false;
 	}
+	
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,15 +68,15 @@ public class Sangbok extends Activity {
         //Fix some layout details
         setTitle( getString(R.string.app_label) );
 
-        
         //Set-up the linkings
         sangerView = new ArrayAdapter<Sang>(this, android.R.layout.simple_list_item_1);
         resList = (ListView) findViewById(R.id.resultList);
         resList.setAdapter(sangerView);
         sangerList = new ArrayList<List<Sang>>();
+        sL = new SangLister(this, sangerView, sangerList);
         
         //Read all songs at start up
-        initLists();
+        sL.initLists();
         
         //Connect a OnItemClickListener to the ListView with Songs
         resList.setOnItemClickListener(new OnItemClickListener() {
@@ -87,6 +88,7 @@ public class Sangbok extends Activity {
             	startActivity(intent);
             }
             });
+        
         //Connect listener to EditText
         EditText editText = (EditText) findViewById(R.id.search_string);
         editText.setOnEditorActionListener(new OnEditorActionListener() {
@@ -109,6 +111,7 @@ public class Sangbok extends Activity {
         });
     }
 
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_main, menu);
@@ -124,180 +127,14 @@ public class Sangbok extends Activity {
         return super.onCreateOptionsMenu(menu);
     }
     
-    
-    /* Set up all chapters!
-     */
-    
-    /* Initialize the SongList by
-     * getting all files with correct ending in Assets
-     * and convert it into Songs that can be used!
-     */
-    public void initLists() {
-    	//Clear the list and re-do it!
-    	sangerView.clear();
-    	sangerList.clear();
-    	//Initialize the sangerList to hold at least as many chapters as defined in the xml
-    	String[] chapters = getResources().getStringArray(R.array.chapter_names);
-    	for( int i=0; i<chapters.length; i++ ) {
-    		sangerList.add( new ArrayList<Sang>() );
-    	}
-        //Work with assets and find all files with correct ending
-        File[] files = null;
-        Sang temp;
-        files = getFilesDir().listFiles();
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(Sangbok.this);
-		String fileEnding = sharedPrefs.getString("file_ending",getString(R.string.SongFileEnding));
-        for (File file : files) {
-            if(file.getPath().toLowerCase(Locale.ENGLISH).endsWith( fileEnding.toLowerCase(Locale.ENGLISH) )){
-            	//Make a Song of the .txt-file and add to the list
-            	temp = readSangFromFile( file );
-            	while( temp.getChapter() > sangerList.size() ) {//Error handling, if trying to add to a chapter larger than defined...
-            		sangerList.add( new ArrayList<Sang>() );
-            	}
-            	sangerList.get( temp.getChapter()-1 ).add( temp );
-             }
-        }
-        //Sort all chapters so that standard is according to Chapter-sorting
-        for( int i = 0; i < sangerList.size(); ++i ) {
-        	Collections.sort( sangerList.get(i), Sang.getChapterComparator() );
-        	for( Sang add : sangerList.get(i) ) {
-        		sangerView.add( add );
-        	}
-        }
-//        sangerView.sort( Sang.getChapterComparator() );
-        if( sangerView.isEmpty() ) {//If no data is found tell the user what to do
-        	sangerList.add( new ArrayList<Sang>() );
-        	sangerList.get(sangerList.size()-1).add( new Sang(getString(R.string.no_song_found_title), "", getString(R.string.no_song_found_text), "", 0, 0) );
-        	sangerView.add( new Sang(getString(R.string.no_song_found_title), "", getString(R.string.no_song_found_text), "", 0, 0) );
-        }
-        //Update the visual part
-        TextView textView = (TextView) findViewById(R.id.what_is_seen);
-    	textView.setText( getString(R.string.what_you_see) + " " + getString(R.string.whole_book) );
-        sangerView.notifyDataSetChanged();
-    }
-    
-    /* Open the passed file and process it so that it becomes a nice Song.
-	 * so that the rest of the structure can work abstract with the type Song.
-	 */
-    public Sang readSangFromFile( File file ) {
-    	SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(Sangbok.this);
-		String numDelimiter = sharedPrefs.getString("number_delimiter",getString(R.string.serverFileDelimiter));
-		String fileEnding = sharedPrefs.getString("file_ending",getString(R.string.SongFileEnding));
-    	assert( fileEnding.matches("(?i).*" + numDelimiter + ".*") ); //The file ending must not contain the character that is used in separating chapter-number from song-number in the file names. If so the code will fail and hence we make assertion fail instead.
-    	Sang retSang = new Sang();
-    	String path = file.getPath();
-    	int basePathLength = getFilesDir().getPath().length();
-    	retSang.setTitle( path );
-    	String[] split = path.split( numDelimiter );
-    	int splitLen = split.length;
-    	retSang.setChapter( Integer.parseInt( split[splitLen-2].substring(basePathLength+1) ) ); //read all numbers starting after the base path up to delimiter
-    	if( split[splitLen-1].length() > fileEnding.length() ) {
-    		retSang.setNumber( Integer.parseInt( split[splitLen-1].substring(0, split[splitLen-1].length()-fileEnding.length() ) ) ); //after the - it is number and thus the rest except .txt is the song number within that chapter
-    	}
-        //get the file as a stream 
-        try{
-	        StringBuilder buffer = new StringBuilder();
-	        BufferedReader bR= new BufferedReader( new FileReader(file) );
-	        String str;
-	        int state = -1;
-	        while ((str=bR.readLine()) != null) {
-	        	//Remove starting whites-paces
-	        	while(str.startsWith(" ") ) {
-	        		str = str.substring(1);
-	        	}
-	        	if( str.startsWith("<titel>") ) {
-	        		setSangContent(state, retSang, buffer.toString());
-	              	state = 0;
-	              	str = str.substring(7);
-					//Remove following white-spaces
-					while(str.startsWith(" ") ) {
-						str = str.substring(1);
-					}
-					buffer.setLength(0);
-					if( !str.equals("") ) {
-						buffer.append(str);
-					}
-	              	
-	        	}else if( str.startsWith("<melodi>") ) {
-	        		setSangContent(state, retSang, buffer.toString());
-	              	state = 1;
-	              	str = str.substring(8);
-					//Remove following white-spaces
-					while(str.startsWith(" ") ) {
-						str = str.substring(1);
-					}
-					buffer.setLength(0);
-	              	buffer.append(str);
-	        		
-	        	}else if( str.startsWith("<text>") ) {
-	        		setSangContent(state, retSang, buffer.toString());
-	              	state = 2;
-	              	str = str.substring(6);
-					//Remove following white-spaces
-					while(str.startsWith(" ") ) {
-						str = str.substring(1);
-					}
-	              	buffer.append(str);
-	              	buffer.setLength(0);
-	              	buffer.append(str);
-	        		
-	        	}else if( str.startsWith("<author>") ) {
-	        		setSangContent(state, retSang, buffer.toString());
-	              	state = 3;
-	              	str = str.substring(8);
-					//Remove following white-spaces
-					while(str.startsWith(" ") ) {
-						str = str.substring(1);
-					}
-	              	buffer.append(str);
-	              	buffer.setLength(0);
-	              	buffer.append(str);
-	        		
-	        	}else if(  (str.equals("") || str.equals("\n")) && (state!=2)  ) {}
-	        	else {
-	        		if( !buffer.toString().equals("") ) { //If a tag is on a own row then the buffer will be empty first time it reaches here, do not append newline character.
-	        			buffer.append("\n");
-	        		}
-	        		buffer.append(str);
-	        	}
-	        }
-	        //When exiting, do what you must with the rest!
-	        setSangContent(state, retSang, buffer.toString());
-	        bR.close();
-        } catch(IOException e) {
-	    	e.printStackTrace();
-	    }
-        return retSang;
-   }
-    //Helper function, to the "readSangFromFile(String file)"-function
-    private void setSangContent(int state, Sang retSang, String toSet) {
-        switch (state) {
-		case 0:
-			retSang.setTitle(toSet);
-			break;
-		case 1:
-			retSang.setMelody(toSet);
-			break;
-		case 2:
-			retSang.setText(toSet);
-			break;
-		case 3:
-			retSang.setAuthor(toSet);
-			break;
-		case -1:
-			break;
-      	}
-    }
-    
-    
+
     //When clicking the search-button
     public void onSearchButton(View view) {
     	searchAction();
     	return;
     }
-    /* THE Search-function
-     * Here so that it can be called from multiple instances!
-     */
+    /* THE SEARCH-function
+     * Placed here so that it can be called from multiple instances! */
     private void searchAction() {
     	//start by resetting icons. Search result is displayed in chapter sort.
     	resetIcons();
@@ -320,6 +157,25 @@ public class Sangbok extends Activity {
     	}
     	return;
     }
+    
+	/* Function that searches for the occurrence of <str> in the <title> and <text> of a song */
+	private void searchSubStr( String str ) {
+		sangerView.clear();
+		List<Sang> tempList;
+		Sang tempSang;
+		for( int i=0; i<sangerList.size(); ++i ) {
+			tempList = sangerList.get(i);
+			for( int j=0; j<tempList.size(); ++j ) {
+				tempSang = tempList.get(j);
+				if( tempSang.getTitle().toLowerCase(Locale.ENGLISH).contains(str.toLowerCase(Locale.ENGLISH)) ||  tempSang.getText().toLowerCase(Locale.ENGLISH).contains(str.toLowerCase(Locale.ENGLISH))) {
+					sangerView.add( tempSang );
+				}
+				
+			}
+		}
+		sangerView.notifyDataSetChanged();
+		return;
+	}
     
     
     //Handle menu options selected.
@@ -413,26 +269,8 @@ public class Sangbok extends Activity {
 		sangerView.notifyDataSetChanged();
 		return;
 	}
-	/*
-	 * Function that searches for the occurrence of <str> in the <title> and <text> of a song
-	 */
-	private void searchSubStr( String str ) {
-		sangerView.clear();
-		List<Sang> tempList;
-		Sang tempSang;
-		for( int i=0; i<sangerList.size(); ++i ) {
-			tempList = sangerList.get(i);
-			for( int j=0; j<tempList.size(); ++j ) {
-				tempSang = tempList.get(j);
-				if( tempSang.getTitle().toLowerCase(Locale.ENGLISH).contains(str.toLowerCase(Locale.ENGLISH)) ||  tempSang.getText().toLowerCase(Locale.ENGLISH).contains(str.toLowerCase(Locale.ENGLISH))) {
-					sangerView.add( tempSang );
-				}
-				
-			}
-		}
-		sangerView.notifyDataSetChanged();
-		return;
-	}
+
+	
 	/*
 	 * Function that performs the Synchronization of songs with the server.
 	 */
@@ -567,7 +405,7 @@ public class Sangbok extends Activity {
 				break;
 			}
 			//Re-initiate the song lists after synchronization.
-			initLists();
+			sL.initLists();
 		}
 	}
 	
