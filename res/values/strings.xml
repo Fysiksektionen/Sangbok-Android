@@ -27,7 +27,7 @@
     <string name="search_results">sökresultat</string>
     <string name="no_search_results">Hittade tyvärr inga sånger som matchar sökningen.</string>
 
-    <!-- Chapters in the book -->
+    <!-- Chapters in the book 
 	<string-array name = "chapter_names">
         <item>Visor till högtid</item>
 	    <item>Visor till gasque</item>
@@ -43,11 +43,12 @@
 	    <item>Nidvisor</item>
 	    <item>Skojiga visor</item>
 	    <item>Visor till Fysiker</item>
-    </string-array>
+    </string-array> -->
     
     <!-- Strings related to Network and Sync -->
     <string name="network_error">Ingen internetåtkomst.\nVar vänlig anslut till WiFi eller tillåt datatrafik.</string>
     <string name="network_host_error">Servern verkar vara felkonfigurerad&#8230;\nHör av dig till din favorit SysAdmin!</string>
+    <string name="network_chapter_error">Hittar inte kapiteldefinitioerna&#8230;\nHör av dig till din favorit SysAdmin!</string>
     <string name="network_host_not_found">Servern hittades inte, prova att återställa dina värden till default.\nDet kan vara så att servern är felkonfigurerad.</string>
     <string name="network_memory_bug">Okänt fel&#8230;\nEventuellt så misslyckades appen skriva till minnet.\nKontrollera hur mycket minne som finns kvar.</string>
     <string name="network_done">Synkronisering slutförd.</string>
@@ -60,11 +61,15 @@
     <string name="file_ending_title">Filändelse</string>
     <string name="reset_done">Default-värdena är återställda</string>
     
-    <string name="serverURL">http://www.f.kth.se/~eringh/Android/</string>
+    <string name="serverURL">http://www.nada.kth.se/~eringh/Android/</string>
     <string name="serverInstructionURL">AndroidInstructions.txt</string>
     <string name="serverFileDelimiter">-</string>
     <string name="SongFileEnding">.txt</string>
     
+    
+    <!--  Strings related to Chapter names-->
+    <string name="chapter_names_file">chapterNamesFile.txt</string>
+    <string name="no_chapters_defined">Kunde inte hitta kapitelnamnen. Prova att synkronisera för att ladda ner dem.</string>
     
     <!-- No songs downloaded-help -->
     <string name="no_song_found_title">Inga sånger hittades. Klicka här för mer information.</string>

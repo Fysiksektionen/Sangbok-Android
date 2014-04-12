@@ -14,6 +14,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /*
 Class that reads the files on the device and processes them into songs!
@@ -24,11 +25,13 @@ public class SangLister {
 	private ArrayAdapter<Sang> sangerView;
 	private List<List<Sang>> sangerList;
 	private Activity myApp;
+	private List<String> chapterNames;
 	
-	public SangLister(Activity mA, ArrayAdapter<Sang> sW, List<List<Sang>> sL) {
+	public SangLister(Activity mA, ArrayAdapter<Sang> sW, List<List<Sang>> sL, List<String> cN) {
 		myApp = mA;
 		sangerView = sW;
 		sangerList = sL;
+		chapterNames = cN;
 	}
 	
     /* Set up all chapters!
@@ -42,9 +45,25 @@ public class SangLister {
     	//Clear the list and re-do it!
     	sangerView.clear();
     	sangerList.clear();
-    	//Initialize the sangerList to hold at least as many chapters as defined in the xml
-    	String[] chapters = myApp.getResources().getStringArray(R.array.chapter_names);
-    	for( int i=0; i<chapters.length; i++ ) {
+    	chapterNames.clear();
+    	
+    	//Start by reading how many chapters there should be.
+    	File chapterDefinitionsFile = new File(myApp.getFilesDir(), myApp.getString(R.string.chapter_names_file));
+    	try{
+		    BufferedReader bR= new BufferedReader( new FileReader(chapterDefinitionsFile) );
+		    String str;
+		    while ((str=bR.readLine()) != null) {
+		    	chapterNames.add(str.trim());
+		    }
+		    bR.close();
+		 }
+		catch(IOException e) {
+			Toast.makeText(myApp.getApplicationContext(), R.string.no_chapters_defined, Toast.LENGTH_LONG).show();
+		}
+    	
+    	
+    	//Initialize the sangerList to hold at least as many chapters as said by settings
+    	for( int i=0; i<chapterNames.size(); i++ ) {
     		sangerList.add( new ArrayList<Sang>() );
     	}
         //Work on the private storage of the app in the Android OS and find all files with correct ending
@@ -54,7 +73,7 @@ public class SangLister {
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(myApp);
 		String fileEnding = sharedPrefs.getString("file_ending", myApp.getString(R.string.SongFileEnding));
         for (File file : files) {
-            if(file.getPath().toLowerCase(Locale.ENGLISH).endsWith( fileEnding.toLowerCase(Locale.ENGLISH) )){
+            if( file.getPath().toLowerCase(Locale.ENGLISH).endsWith( fileEnding.toLowerCase(Locale.ENGLISH) ) && Character.isDigit(file.getName().charAt(0)) ){
             	//Make a Song of the ".txt"-file (or other file ending if that is specified) and add to the list
             	temp = readSangFromFile( file );
             	if( temp.getChapter() <= 0 ) { //The smallest chapter number expected is 1. Otherwise handle it somehow!
@@ -98,20 +117,21 @@ public class SangLister {
     	retSang.setTitle( path );
     	String[] split = path.split( numDelimiter );
     	int splitLen = split.length;
-    	if( fileEnding.matches("(?i).*" + numDelimiter + ".*") ) { //The file ending must not contain the character that is used in separating chapter-number from song-number in the file names. If so the code will fail and hence we make assertion fail instead.
-    		retSang.setChapter( -1 );
-    		retSang.setNumber( -1 );
+    	if( fileEnding.matches("(?i).*" + numDelimiter + ".*") ) { //The file ending must not contain the character that is used in separating chapter-number from song-number in the file names.
+    		//Do nothing, by default numbers are -1
     	}
-    	else {
+    	else if ( splitLen < 2 ) { //If not in at least two parts there is something wrong. Rely on default values...
+    		//Do nothing, by default numbers are -1
+    	}
+    	else { //Passed all sanity checks, try to parse the integers
 	    	try{
 	    	retSang.setChapter( Integer.parseInt( split[splitLen-2].substring(basePathLength+1) ) ); //read all numbers starting after the base path up to delimiter
 	    	if( split[splitLen-1].length() > fileEnding.length() ) {
 	    		retSang.setNumber( Integer.parseInt( split[splitLen-1].substring(0, split[splitLen-1].length()-fileEnding.length() ) ) ); //after the - it is number and thus the rest except .txt is the song number within that chapter
 	    	}
 	    	}
-	    	catch(NumberFormatException e) {//If something is wrong with the format, do not crash the app.
-	    		retSang.setChapter( -1 );
-	    		retSang.setNumber( -1 );
+	    	catch(NumberFormatException e) {//If something is wrong with the format, do not crash. Rely on default values...
+	    		//Do nothing, by default numbers are -1
 	    	}
     	}
         //get the file as a stream 
@@ -121,10 +141,8 @@ public class SangLister {
 	        String str;
 	        int state = -1;
 	        while ((str=bR.readLine()) != null) {
-	        	//Remove starting whites-paces
-	        	while(str.startsWith(" ") ) {
-	        		str = str.substring(1);
-	        	}
+	        	//Remove leading and trailing whites-paces
+        		str = str.trim();
 	        	if( str.startsWith("<titel>") ) {
 	        		setSangContent(state, retSang, buffer.toString());
 	              	state = 0;

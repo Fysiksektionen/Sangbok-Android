@@ -41,6 +41,7 @@ public class Sangbok extends Activity {
 	private ArrayAdapter<Sang> sangerView;
 	private ListView resList;
 	private List<List<Sang>> sangerList;
+	private List<String> chapterNames;
 	
 	private Menu myMenu;
 	private boolean alphSortMenuItem = true;
@@ -49,14 +50,20 @@ public class Sangbok extends Activity {
 	private SangLister sL;
 	
 	
+	
+	
 	@Override
 	public void onResume(){
 		super.onResume();
 		if( RETURN_FROM_SETTINGS ) {
 			sL.initLists();
+			resetIcons();
+			MenuItem item = myMenu.findItem( R.id.sort_chpt );
+	    	item.setIcon( R.drawable.chpt_sort );
 		}
 		RETURN_FROM_SETTINGS = false;
 	}
+	
 	
 	
     @Override
@@ -73,7 +80,8 @@ public class Sangbok extends Activity {
         resList = (ListView) findViewById(R.id.resultList);
         resList.setAdapter(sangerView);
         sangerList = new ArrayList<List<Sang>>();
-        sL = new SangLister(this, sangerView, sangerList);
+        chapterNames = new ArrayList<String>();
+        sL = new SangLister(this, sangerView, sangerList, chapterNames);
         
         //Read all songs at start up
         sL.initLists();
@@ -112,22 +120,23 @@ public class Sangbok extends Activity {
     }
 
     
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_main, menu);
-        myMenu = menu; //Come in handy later when ou want to change the menu-icons in resetIcons();
+        myMenu = menu; //Come in handy later when you want to change the menu-icons in resetIcons();
         
         //Create the submenu that shows one chapter at the time
         SubMenu sub = (SubMenu) menu.findItem( R.id.view_chpt ).getSubMenu();
-        String[] chapters = getResources().getStringArray(R.array.chapter_names);
-        for( int i=0; i<chapters.length; i++ ) {
-        	sub.add( Menu.NONE, i, i, Integer.toString(i+1) + " - " + chapters[i] );
+        for( int i=0; i<chapterNames.size(); i++ ) {
+        	sub.add( Menu.NONE, i, i, Integer.toString(i+1) + " - " + chapterNames.get(i) );
         }
-        sub.add( Menu.NONE, chapters.length, chapters.length, getString( R.string.whole_book) );
+        sub.add( Menu.NONE, chapterNames.size(), chapterNames.size(), getString( R.string.whole_book) );
         return super.onCreateOptionsMenu(menu);
     }
     
 
+    
     //When clicking the search-button
     public void onSearchButton(View view) {
     	searchAction();
@@ -157,7 +166,6 @@ public class Sangbok extends Activity {
     	}
     	return;
     }
-    
 	/* Function that searches for the occurrence of <str> in the <title> and <text> of a song */
 	private void searchSubStr( String str ) {
 		sangerView.clear();
@@ -177,17 +185,18 @@ public class Sangbok extends Activity {
 		return;
 	}
     
+	
     
     //Handle menu options selected.
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
 		
-		if( id >= 0 && id <= getResources().getStringArray(R.array.chapter_names).length ) {
+		if( id >= 0 && id <= chapterNames.size() ) {
 			showChpt( id );
 			TextView textView = (TextView) findViewById(R.id.what_is_seen);
 			String seen =" ";
-			if( id != getResources().getStringArray(R.array.chapter_names).length ) seen = " " + getString(R.string.view_chpt) + " ";
+			if( id != chapterNames.size() ) seen = " " + getString(R.string.view_chpt) + " ";
 		    textView.setText( getString(R.string.what_you_see) + seen + item.getTitle() );
 			return true;
 		}
@@ -243,7 +252,7 @@ public class Sangbok extends Activity {
 	 */
 	private void showChpt( int chapter ) {
 		if( chapter > sangerList.size() ) return;
-		if( chapter == getResources().getStringArray(R.array.chapter_names).length ) {
+		if( chapter == chapterNames.size() ) {
 			showAllSang();
 			return;
 		}
@@ -271,10 +280,13 @@ public class Sangbok extends Activity {
 	}
 
 	
+	
 	/*
 	 * Function that performs the Synchronization of songs with the server.
 	 */
 	private class sync extends AsyncTask<String, Boolean, Integer> {
+		int readTimeOutInms = 15000;
+		int connectionTimeOutInms = 20000;
 		
 		@Override
         protected Integer doInBackground(String... urls) {
@@ -284,22 +296,23 @@ public class Sangbok extends Activity {
 			SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(Sangbok.this);
 			String serverURL = sharedPrefs.getString("server_URL",getString(R.string.serverURL));
 			String instructionURL = sharedPrefs.getString("server_instruction_URL",getString(R.string.serverInstructionURL));
+			String chapterNamesURL = getString(R.string.chapter_names_file);
 			String numDelimiter = sharedPrefs.getString("number_delimiter",getString(R.string.serverFileDelimiter));
 			String fileEnding = sharedPrefs.getString("file_ending",getString(R.string.SongFileEnding));
 		    if (networkInfo != null && networkInfo.isConnected()) {//We have Internet. Time to sync!
 		    	InputStream is = null;
 		    	InputStream sangStream = null;
+		    	InputStream chapterStream = null;
 		    	FileOutputStream outputStream = null;
 		    	HttpURLConnection conn = null;
 		        try {
-		        	//Set up connection with the download site
+		        	//Set up connection with the download site, and try to download the instruction-document
 		            URL url = new URL( serverURL + instructionURL  );
 		            conn = (HttpURLConnection) url.openConnection();
-		            conn.setReadTimeout(10000 /* milliseconds */);
-		            conn.setConnectTimeout(15000 /* milliseconds */);
+		            conn.setReadTimeout(readTimeOutInms);
+		            conn.setConnectTimeout(connectionTimeOutInms);
 		            conn.setRequestMethod("GET");
 		            conn.setDoInput(true);
-		            // Starts the query
 		            conn.connect();
 		            is = conn.getInputStream();
 		        }
@@ -342,8 +355,8 @@ public class Sangbok extends Activity {
 		              		buffer.append(i);
 		              		buffer.append( fileEnding );
 		              		conn = (HttpURLConnection) new URL( buffer.toString() ).openConnection();
-				            conn.setReadTimeout(10000); //miliseconds
-				            conn.setConnectTimeout(15000); //miliseconds
+				            conn.setReadTimeout(readTimeOutInms);
+				            conn.setConnectTimeout(connectionTimeOutInms);
 				            conn.setRequestMethod("GET");
 				            conn.setDoInput(true);
 				            conn.connect();
@@ -356,9 +369,10 @@ public class Sangbok extends Activity {
 		              	
 			        }
 		            
-		            // close stream and disconnect
+		            // close streams
 		            is.close();
-		            conn.disconnect();
+		            sangStream.close();
+		            
 		        }
 		        catch( IOException e ) {
 		        	e.printStackTrace();
@@ -374,6 +388,28 @@ public class Sangbok extends Activity {
 		        	e.printStackTrace();
 		        	upDate = 5;
 		        	return upDate;
+		        }
+		        try{
+		            //Download the chapter names while at it!
+		            URL url = new URL( serverURL + chapterNamesURL  );
+		            conn = (HttpURLConnection) url.openConnection();
+		            conn.setReadTimeout(readTimeOutInms);
+		            conn.setConnectTimeout(connectionTimeOutInms);
+		            conn.setRequestMethod("GET");
+		            conn.setDoInput(true);
+		            conn.connect();
+		            chapterStream = conn.getInputStream();
+		            outputStream = openFileOutput( chapterNamesURL, Context.MODE_PRIVATE);
+		            outputStream.write(new Scanner(chapterStream,"UTF-8").useDelimiter("\\A").next().getBytes());
+		            outputStream.close();
+		            
+		            // close stream and disconnect
+		            chapterStream.close();
+		            conn.disconnect();
+		        }
+	            catch( IOException e ) {
+		        	e.printStackTrace();
+		        	upDate = 6;
 		        }
 
 		    }else {//We do not have Internet, display error
@@ -403,9 +439,15 @@ public class Sangbok extends Activity {
 			case 5:
 				Toast.makeText(Sangbok.this, R.string.network_host_error, Toast.LENGTH_LONG).show();
 				break;
+			case 6:
+				Toast.makeText(Sangbok.this, R.string.network_chapter_error, Toast.LENGTH_LONG).show();
+				break;
 			}
 			//Re-initiate the song lists after synchronization.
 			sL.initLists();
+			resetIcons();
+			MenuItem item = myMenu.findItem( R.id.sort_chpt );
+	    	item.setIcon( R.drawable.chpt_sort );
 		}
 	}
 	

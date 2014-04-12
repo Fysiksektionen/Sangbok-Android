@@ -6,7 +6,7 @@
         android:title="@string/settings_server_URL_title"
         android:defaultValue="@string/serverURL"
 	    />
-	
+	<!-- Uncomment this if you want to be able to set values to delimiter, filen ending and Server Instruction file-name as a setting!
 	<EditTextPreference
         android:key="server_instruction_URL"
         android:title="@string/settings_server_instruction_URL_title"
@@ -24,5 +24,6 @@
         android:title="@string/file_ending_title"
         android:defaultValue="@string/SongFileEnding"
 	    />
+	-->
 
 </PreferenceScreen>
