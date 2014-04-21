@@ -269,35 +269,48 @@ public class Sangbok extends Activity {
 	/*
 	 * Function that performs the Synchronization of songs with the server.
 	 */
-	private class sync extends AsyncTask<String, Boolean, Integer> {
+	private class sync extends AsyncTask<String, Boolean, int[]> {
 		
 		@Override
-        protected Integer doInBackground(String... urls) {
+        protected int[] doInBackground(String... urls) {
 		    return SynchronizeHandler.sync(Sangbok.this);
+		    // Return array will be of length 5, meaning: 
+		    //
+		    // 0) Do we have Internet connection?
+			// 1) Did we find/connect to the server (+instruction file)
+			// 2) Did all the songs download as they should
+			// 3) Did we find the chapter definition file
+			// 4) Was the sever correctly configured?
+		    //
+		    // 0 = good, everything worked just fine.
+			// 1 = bad, something went wrong...
 		}
 
 		@Override
-		protected void onPostExecute(Integer upDate) {//Deliver a message to the user of how the synchronization went
-			switch( upDate) {
-			case 1:
-				Toast.makeText(Sangbok.this, R.string.network_done, Toast.LENGTH_LONG).show();
-				break;
-			case 2:
+		protected void onPostExecute(int[] upDate) {//Deliver a message to the user of how the synchronization went
+			
+			if( upDate[0] != 0 ) {
 				Toast.makeText(Sangbok.this, R.string.network_error, Toast.LENGTH_LONG).show();
-				break;
-			case 3:
-				Toast.makeText(Sangbok.this, R.string.network_host_not_found, Toast.LENGTH_LONG).show();
-				break;
-			case 4:
-				Toast.makeText(Sangbok.this, R.string.network_memory_bug, Toast.LENGTH_LONG).show();
-				break;
-			case 5:
-				Toast.makeText(Sangbok.this, R.string.network_host_error, Toast.LENGTH_LONG).show();
-				break;
-			case 6:
-				Toast.makeText(Sangbok.this, R.string.network_chapter_error, Toast.LENGTH_LONG).show();
-				break;
 			}
+			if( upDate[1] != 0 ) {
+				Toast.makeText(Sangbok.this, R.string.network_host_not_found, Toast.LENGTH_LONG).show();
+			}
+			if( upDate[2] != 0 ) {
+				Toast.makeText(Sangbok.this, R.string.network_memory_bug, Toast.LENGTH_LONG).show();
+			}
+			if( upDate[3] != 0 ) {
+				Toast.makeText(Sangbok.this, R.string.network_chapter_error, Toast.LENGTH_LONG).show();
+			}
+			if( upDate[4] != 0 ) {
+				Toast.makeText(Sangbok.this, R.string.network_host_error, Toast.LENGTH_LONG).show();
+			}
+			for( int idx=0; idx < upDate.length; ++idx ) {
+				upDate[0] += upDate[idx];
+			}
+			if( upDate[0] == 0 ) {
+				Toast.makeText(Sangbok.this, R.string.network_done, Toast.LENGTH_LONG).show();
+			}
+
 			//Re-initiate the song lists after synchronization.
 			sL.initLists();
 			invalidateOptionsMenu();

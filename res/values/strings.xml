@@ -50,7 +50,7 @@
     <string name="network_host_error">Servern verkar vara felkonfigurerad&#8230;\nHör av dig till din favorit SysAdmin!</string>
     <string name="network_chapter_error">Hittar inte kapiteldefinitioerna&#8230;\nHör av dig till din favorit SysAdmin!</string>
     <string name="network_host_not_found">Servern hittades inte, prova att återställa dina värden till default.\nDet kan vara så att servern är felkonfigurerad.</string>
-    <string name="network_memory_bug">Okänt fel&#8230;\nEventuellt så misslyckades appen skriva till minnet.\nKontrollera hur mycket minne som finns kvar.</string>
+    <string name="network_memory_bug">Lyckades inte ladda hem alla sånger.\nKan vara fel på servern eller så misslyckades appen skriva till minnet.\nKontrollera hur mycket minne som finns kvar.</string>
     <string name="network_done">Synkronisering slutförd.</string>
     
     
@@ -61,7 +61,7 @@
     <string name="file_ending_title">Filändelse</string>
     <string name="reset_done">Default-värdena är återställda</string>
     
-    <string name="serverURL">http://www.nada.kth.se/~eringh/Android/</string>
+    <string name="serverURL">http://f.kth.se/api/sangbok/</string>
     <string name="serverInstructionURL">AndroidInstructions.txt</string>
     <string name="serverFileDelimiter">-</string>
     <string name="SongFileEnding">.txt</string>

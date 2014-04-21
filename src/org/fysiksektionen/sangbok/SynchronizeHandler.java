@@ -20,19 +20,29 @@ public class SynchronizeHandler {
 	private static int readTimeOutInms = 15000;
 	private static int connectionTimeOutInms = 20000;
 	
-	public static int sync(Activity myApp) {
-		Integer upDate = 1;
+	public static int[] sync(Activity myApp) {
+		int[] status = new int[5];  // 0) Do we have Internet connection?
+									// 1) Did we find/connect to the server (+instruction file)
+									// 2) Did all the songs download as they should
+									// 3) Did we find the chapter definition file
+									// 4) Was the sever correctly configured?
+		for( int i = 0; i<status.length; ++i ) {
+			status[i] = 0;			// 0 = good, everything worked just fine. Initial assumption.
+									// 1 = bad, something went wrong...
+		}
 		ConnectivityManager connMgr = (ConnectivityManager) myApp.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 		SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(myApp);
 		String serverURL = sharedPrefs.getString("server_URL", myApp.getString(R.string.serverURL));
+		if( !serverURL.endsWith( "/" ) ) {
+			serverURL += "/";
+		}
 		String instructionURL = sharedPrefs.getString("server_instruction_URL", myApp.getString(R.string.serverInstructionURL));
 		String chapterNamesURL = myApp.getString(R.string.chapter_names_file);
 		String numDelimiter = sharedPrefs.getString("number_delimiter", myApp.getString(R.string.serverFileDelimiter));
 		String fileEnding = sharedPrefs.getString("file_ending", myApp.getString(R.string.SongFileEnding));
 	    if (networkInfo != null && networkInfo.isConnected()) {//We have Internet. Time to sync!
 	    	InputStream is = null;
-	    	InputStream sangStream = null;
 	    	InputStream chapterStream = null;
 	    	FileOutputStream outputStream = null;
 	    	HttpURLConnection conn = null;
@@ -49,8 +59,8 @@ public class SynchronizeHandler {
 	        }
 	        catch( IOException e ) {
 	        	e.printStackTrace();
-	        	upDate = 3;
-	        	return upDate;
+	        	status[1] = 1;
+	        	return status;
 	        }
 	        try{
 	            //Work with the info gotten from the server!
@@ -76,7 +86,7 @@ public class SynchronizeHandler {
 	              	buffer.append( numDelimiter );
 	              	buffLen = buffer.length();
 	              	
-	              	//then follows start and stop for song numbers in that chapter
+	              	//then follow start and stop for song numbers in that chapter
 	              	line = ir.readLine().trim();	              	
 	              	start = Integer.parseInt(line);
 	              	line = ir.readLine().trim();
@@ -85,40 +95,25 @@ public class SynchronizeHandler {
 	              		buffer.setLength(buffLen);
 	              		buffer.append(i);
 	              		buffer.append( fileEnding );
-	              		conn = (HttpURLConnection) new URL( buffer.toString() ).openConnection();
-			            conn.setReadTimeout(readTimeOutInms);
-			            conn.setConnectTimeout(connectionTimeOutInms);
-			            conn.setRequestMethod("GET");
-			            conn.setDoInput(true);
-			            conn.connect();
-			            sangStream = conn.getInputStream();
-			            //Write the songs to file
-			            outputStream = myApp.openFileOutput( Integer.toString(readingChpt) + numDelimiter + Integer.toString(i) + fileEnding, Context.MODE_PRIVATE);
-			            outputStream.write(new Scanner(sangStream,"UTF-8").useDelimiter("\\A").next().getBytes());
-			            outputStream.close();
+	              		if( downloadSang(buffer, readingChpt, i, serverURL, numDelimiter, fileEnding, myApp) != 0) {
+	              			status[2] = 1;
+	              		}
 	              	}
 	              	
 		        }
-	            
 	            // close streams
 	            is.close();
-	            sangStream.close();
-	            
+	            conn.disconnect();
 	        }
 	        catch( IOException e ) {
 	        	e.printStackTrace();
-	        	if( e.getMessage().startsWith("http://") ){
-	        		upDate = 5;
-	        		return upDate;
-	        	}else {
-		        	upDate = 4;
-		        	return upDate;
-	        	}
+	        	status[4] = 1;
+	        	return status;
 	        }
 	        catch( NumberFormatException e ) {
 	        	e.printStackTrace();
-	        	upDate = 5;
-	        	return upDate;
+	        	status[4] =  1;
+	        	return status;
 	        }
 	        try{
 	            //Download the chapter names while at it!
@@ -140,12 +135,53 @@ public class SynchronizeHandler {
 	        }
 	        catch( IOException e ) {
 	        	e.printStackTrace();
-	        	upDate = 6;
+	        	status[3] = 1;
+	        	return status;
 	        }
 	
 	    }else {//We do not have Internet, display error
-	    	upDate = 2;
+	    	status[0] = 0;
 		}
-	    return upDate;
+	    return status;
 	}
+	
+	
+	
+	
+	private static int downloadSang(StringBuilder buffer,
+									int chapterNr,
+									int sangNr,
+									String serverURL,
+									String numDelimiter,
+									String fileEnding,
+									Activity myApp
+									) {
+		try{
+    	InputStream sangStream = null;
+    	HttpURLConnection conn = null;
+		FileOutputStream outputStream = null;
+  		conn = (HttpURLConnection) new URL( buffer.toString() ).openConnection();
+        conn.setReadTimeout(readTimeOutInms);
+        conn.setConnectTimeout(connectionTimeOutInms);
+        conn.setRequestMethod("GET");
+        conn.setDoInput(true);
+        conn.connect();
+        sangStream = conn.getInputStream();
+        //Write the songs to file
+        outputStream = myApp.openFileOutput( Integer.toString(chapterNr) + numDelimiter + Integer.toString(sangNr) + fileEnding, Context.MODE_PRIVATE);
+        outputStream.write(new Scanner(sangStream,"UTF-8").useDelimiter("\\A").next().getBytes());
+        outputStream.close();
+        conn.disconnect();
+		}
+        catch( IOException e ) {
+        	e.printStackTrace();
+        	if( e.getMessage().startsWith("http://") ){
+        		return 1;
+        	}else {
+    			return 1;
+        	}
+        }
+		return 0;
+	}
+	
 }
