@@ -1,4 +1,4 @@
-package org.fysiksektionen.sangbok;
+package se.kth.f.sangbok;
 
 import java.io.Serializable;
 import java.util.Comparator;

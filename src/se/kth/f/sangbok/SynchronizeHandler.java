@@ -1,4 +1,4 @@
-package org.fysiksektionen.sangbok;
+package se.kth.f.sangbok;
 
 import java.io.BufferedReader;
 import java.io.FileOutputStream;

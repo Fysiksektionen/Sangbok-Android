@@ -229,3 +229,6 @@ local.properties
 
 #Dropbox
 .fuse_*
+
+#ProGuard
+proguard_logs

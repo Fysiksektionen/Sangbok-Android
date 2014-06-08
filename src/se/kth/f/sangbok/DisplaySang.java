@@ -1,4 +1,4 @@
-package org.fysiksektionen.sangbok;
+package se.kth.f.sangbok;
 
 import android.os.Bundle;
 import android.app.Activity;
