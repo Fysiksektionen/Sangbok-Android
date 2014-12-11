@@ -60,6 +60,7 @@
     <string name="number_delimiter_title">Kapitel/sång avskiljare</string>
     <string name="file_ending_title">Filändelse</string>
     <string name="reset_done">Default-värdena är återställda</string>
+    <string name="settings_screen_on_title">Håll skärmen vaken när du tittar på en sång</string>
     
     <string name="serverURL">http://f.kth.se/api/sangbok/</string>
     <string name="serverInstructionURL">AndroidInstructions.txt</string>
