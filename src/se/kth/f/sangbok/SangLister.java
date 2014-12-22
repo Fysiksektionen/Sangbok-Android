@@ -1,9 +1,14 @@
 package se.kth.f.sangbok;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,6 +17,8 @@ import java.util.Locale;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.JsonReader;
+import android.util.JsonToken;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,14 +30,14 @@ Kept in separate class for readability.
 public class SangLister {
 	
 	private ArrayAdapter<Sang> sangerView;
-	private List<List<Sang>> sangerList;
+	private List<Chapter> chapterList;
 	private Activity myApp;
 	private List<String> chapterNames;
 	
-	public SangLister(Activity mA, ArrayAdapter<Sang> sW, List<List<Sang>> sL, List<String> cN) {
+	public SangLister(Activity mA, ArrayAdapter<Sang> sW, List<Chapter> cL, List<String> cN) {
 		myApp = mA;
 		sangerView = sW;
-		sangerList = sL;
+		chapterList = cL;
 		chapterNames = cN;
 	}
 	
@@ -44,57 +51,57 @@ public class SangLister {
     public void initLists() {
     	//Clear the list and re-do it!
     	sangerView.clear();
-    	sangerList.clear();
+    	chapterList.clear();
     	chapterNames.clear();
-    	
-    	//Start by reading how many chapters there should be.
-    	File chapterDefinitionsFile = new File(myApp.getFilesDir(), myApp.getString(R.string.chapter_names_file));
-    	try{
-		    BufferedReader bR= new BufferedReader( new FileReader(chapterDefinitionsFile) );
-		    String str;
-		    while ((str=bR.readLine()) != null) {
-		    	chapterNames.add(str.trim());
-		    }
-		    bR.close();
-		 }
-		catch(IOException e) {
-			Toast.makeText(myApp.getApplicationContext(), R.string.no_chapters_defined, Toast.LENGTH_LONG).show();
-		}
-    	
-    	
-    	//Initialize the sangerList to hold at least as many chapters as said by settings
-    	for( int i=0; i<chapterNames.size(); i++ ) {
-    		sangerList.add( new ArrayList<Sang>() );
-    	}
-        //Work on the private storage of the app in the Android OS and find all files with correct ending
-        File[] files = null;
-        Sang temp;
-        files = myApp.getFilesDir().listFiles();
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(myApp);
-		String fileEnding = sharedPrefs.getString("file_ending", myApp.getString(R.string.SongFileEnding));
-        for (File file : files) {
-            if( file.getPath().toLowerCase(Locale.ENGLISH).endsWith( fileEnding.toLowerCase(Locale.ENGLISH) ) && Character.isDigit(file.getName().charAt(0)) ){
-            	//Make a Song of the ".txt"-file (or other file ending if that is specified) and add to the list
-            	temp = readSangFromFile( file );
-            	if( temp.getChapter() <= 0 ) { //The smallest chapter number expected is 1. Otherwise handle it somehow!
-            		temp.setChapter( 1 );
-            	}
-            	while( temp.getChapter() > sangerList.size() ) {//Error handling, if trying to add to a chapter larger than defined...
-            		sangerList.add( new ArrayList<Sang>() );
-            	}
-            	sangerList.get( (temp.getChapter()-1) ).add( temp );
-             }
+
+    	//Work on the private storage of the app in the Android OS
+    	SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(myApp);
+		String fileName = sharedPrefs.getString("fsangbok", myApp.getString(R.string.current_song_book_databese_file_name));
+    	File file = new File(myApp.getFilesDir().getAbsolutePath() + "/" + fileName);
+//    	List<Chapter> chapterList = new ArrayList<Chapter>();
+        try{
+        	InputStream is = new BufferedInputStream(new FileInputStream(file));
+            //Work with the info gotten from the server!
+        	JsonReader reader = new JsonReader(new InputStreamReader(is, "UTF-8"));
+        	reader.beginArray();
+            while (reader.hasNext()) {
+            	chapterList.add( readChapter(reader) );
+            }
+            reader.endArray();
+            // close streams
+            is.close();
         }
-        //Sort all chapters so that standard is according to Chapter-sorting
-        for( int i = 0; i < sangerList.size(); ++i ) {
-        	Collections.sort( sangerList.get(i), Sang.getChapterComparator() );
-        	for( Sang add : sangerList.get(i) ) {
-        		sangerView.add( add );
+        catch(FileNotFoundException e){
+        	e.printStackTrace();
+        } catch (IOException e) {
+			e.printStackTrace();
+		}
+        
+        //Add chapters to running-app-storage
+        //Sort all chapters so that standard is according to Chapter-sorting, also sort all songs in the chapter.
+        Collections.sort( chapterList, Chapter.getNumberComparator() );
+        while( chapterList.size() > 0 ) {
+        	if( chapterList.get(0).getNumber() != -1) {
+        		break;
+        	}
+        	chapterList.remove(0);
+        }
+        for( int i = 0; i < chapterList.size(); ++i ) {
+        	chapterNames.add(chapterList.get(i).getName());
+        	Collections.sort( chapterList.get(i).getSangs(), Sang.getChapterComparator() );
+        }
+    	
+        //Add songs to the View part as well
+        for( int i = 0; i < chapterList.size(); ++i ) {
+        	for( Sang toAdd : chapterList.get(i).getSangs() ) {
+        		sangerView.add( toAdd );
         	}
         }
         if( sangerView.isEmpty() ) {//If no data is found tell the user what to do
-        	sangerList.add( new ArrayList<Sang>() );
-        	sangerList.get(sangerList.size()-1).add( new Sang( myApp.getString(R.string.no_song_found_title), "", myApp.getString(R.string.no_song_found_text), "", 0, 0) );
+//        	chapterList.add( new ArrayList<Sang>() );
+        	List<Sang> noSangFoundList = new ArrayList<Sang>();
+        	noSangFoundList.add(new Sang( myApp.getString(R.string.no_song_found_title), "", myApp.getString(R.string.no_song_found_text), "", 0, 0) );
+        	chapterList.add( new Chapter( "", 0, noSangFoundList) );
         	sangerView.add( new Sang( myApp.getString(R.string.no_song_found_title), "", myApp.getString(R.string.no_song_found_text), "", 0, 0) );
         }
         //Update the visual part
@@ -104,129 +111,69 @@ public class SangLister {
     }
     
     
-    /* Open the passed file and process it so that it becomes a nice Song.
-	 * so that the rest of the structure can work abstract with the type Song.
+    /*
+     * Build a chapter.
 	 */
-    public Sang readSangFromFile( File file ) {
-    	SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(myApp);
-		String numDelimiter = sharedPrefs.getString("number_delimiter", myApp.getString(R.string.serverFileDelimiter));
-		String fileEnding = sharedPrefs.getString("file_ending", myApp.getString(R.string.SongFileEnding));
-    	Sang retSang = new Sang();
-    	String path = file.getPath();
-    	int basePathLength = myApp.getFilesDir().getPath().length();
-    	retSang.setTitle( path );
-    	String[] split = path.split( numDelimiter );
-    	int splitLen = split.length;
-    	if( fileEnding.matches("(?i).*" + numDelimiter + ".*") ) { //The file ending must not contain the character that is used in separating chapter-number from song-number in the file names.
-    		//Do nothing, by default numbers are -1
-    	}
-    	else if ( splitLen < 2 ) { //If not in at least two parts there is something wrong. Rely on default values...
-    		//Do nothing, by default numbers are -1
-    	}
-    	else { //Passed all sanity checks, try to parse the integers
-	    	try{
-	    	retSang.setChapter( Integer.parseInt( split[splitLen-2].substring(basePathLength+1) ) ); //read all numbers starting after the base path up to delimiter
-	    	if( split[splitLen-1].length() > fileEnding.length() ) {
-	    		retSang.setNumber( Integer.parseInt( split[splitLen-1].substring(0, split[splitLen-1].length()-fileEnding.length() ) ) ); //after the - it is number and thus the rest except .txt is the song number within that chapter
-	    	}
-	    	}
-	    	catch(NumberFormatException e) {//If something is wrong with the format, do not crash. Rely on default values...
-	    		//Do nothing, by default numbers are -1
-	    	}
-    	}
-        //get the file as a stream 
-        try{
-	        StringBuilder buffer = new StringBuilder();
-	        BufferedReader bR= new BufferedReader( new FileReader(file) );
-	        String str;
-	        int state = -1;
-	        while ((str=bR.readLine()) != null) {
-	        	//Remove leading and trailing whites-paces
-        		str = str.trim();
-	        	if( str.startsWith("<titel>") ) {
-	        		setSangContent(state, retSang, buffer.toString());
-	              	state = 0;
-	              	str = str.substring(7);
-					//Remove following white-spaces
-					while(str.startsWith(" ") ) {
-						str = str.substring(1);
-					}
-					buffer.setLength(0);
-					if( !str.equals("") ) {
-						buffer.append(str);
-					}
-	              	
-	        	}else if( str.startsWith("<melodi>") ) {
-	        		setSangContent(state, retSang, buffer.toString());
-	              	state = 1;
-	              	str = str.substring(8);
-					//Remove following white-spaces
-					while(str.startsWith(" ") ) {
-						str = str.substring(1);
-					}
-					buffer.setLength(0);
-	              	buffer.append(str);
-	        		
-	        	}else if( str.startsWith("<text>") ) {
-	        		setSangContent(state, retSang, buffer.toString());
-	              	state = 2;
-	              	str = str.substring(6);
-					//Remove following white-spaces
-					while(str.startsWith(" ") ) {
-						str = str.substring(1);
-					}
-	              	buffer.append(str);
-	              	buffer.setLength(0);
-	              	buffer.append(str);
-	        		
-	        	}else if( str.startsWith("<author>") ) {
-	        		setSangContent(state, retSang, buffer.toString());
-	              	state = 3;
-	              	str = str.substring(8);
-					//Remove following white-spaces
-					while(str.startsWith(" ") ) {
-						str = str.substring(1);
-					}
-	              	buffer.append(str);
-	              	buffer.setLength(0);
-	              	buffer.append(str);
-	        		
-	        	}else if(  (str.equals("") || str.equals("\n")) && (state!=2)  ) {}
-	        	else {
-	        		if( !buffer.toString().equals("") ) { //If a tag is on a own row then the buffer will be empty first time it reaches here, do not append newline character.
-	        			buffer.append("\n");
-	        		}
-	        		buffer.append(str);
-	        	}
-	        }
-	        //When exiting, do what you must with the rest!
-	        setSangContent(state, retSang, buffer.toString());
-	        bR.close();
-        } catch(IOException e) {
-	    	e.printStackTrace();
-	    }
-        return retSang;
+    public Chapter readChapter( JsonReader reader ) throws IOException {
+    	String chptName = "";
+    	int chptNum = -1;
+    	List<Sang> chptSangs = new ArrayList<Sang>();
+        
+        reader.beginObject();
+	     while (reader.hasNext()) {
+	       String name = reader.nextName();
+	       if (name.equals("id")) {
+	    	   chptNum = reader.nextInt();
+	       } else if (name.equals("chapter")) {
+	    	   chptName = reader.nextString();
+	       } else if (name.equals("songs")) {
+	    	   reader.beginArray();
+	    	   while (reader.hasNext()) {
+	    		   chptSangs.add(readSang(reader));
+    	       }
+    	       reader.endArray();
+	       } else {
+	         reader.skipValue();
+	       }
+	     }
+	     reader.endObject();
+	     return new Chapter(chptName, chptNum, chptSangs);
    }
     
-    
-    //Helper function, to the "readSangFromFile(String file)"-function
-    private void setSangContent(int state, Sang retSang, String toSet) {
-        switch (state) {
-		case 0:
-			retSang.setTitle(toSet);
-			break;
-		case 1:
-			retSang.setMelody(toSet);
-			break;
-		case 2:
-			retSang.setText(toSet);
-			break;
-		case 3:
-			retSang.setAuthor(toSet);
-			break;
-		case -1:
-			break;
-      	}
-    }
+    /*
+     * Build a song.
+	 */
+    public Sang readSang(JsonReader reader) throws IOException {
+	     int id = -1; //Not used in current implementation
+	     int chapter_id = -1;
+	     int number = -1;
+	     String title = "";
+	     String author = "";
+	     String melody = "";
+	     String text = "";
 
+	     reader.beginObject();
+	     while (reader.hasNext()) {
+	       String name = reader.nextName();
+	       if (name.equals("id")) {
+	         id = reader.nextInt();
+	       } else if (name.equals("chapter_id") && reader.peek() != JsonToken.NULL) {
+	    	   chapter_id = reader.nextInt();
+	       } else if (name.equals("number") && reader.peek() != JsonToken.NULL) {
+	    	   number = reader.nextInt();
+	       } else if (name.equals("title") && reader.peek() != JsonToken.NULL) {
+	    	   title = reader.nextString();
+	       } else if (name.equals("author") && reader.peek() != JsonToken.NULL) {
+	    	   author = reader.nextString();
+	       } else if (name.equals("melody") && reader.peek() != JsonToken.NULL) {
+	    	   melody = reader.nextString();
+	       } else if (name.equals("text") && reader.peek() != JsonToken.NULL) {
+		         text = reader.nextString();
+	       } else {
+	         reader.skipValue();
+	       }
+	     }
+	     reader.endObject();
+	     return new Sang(title, melody, text, author, chapter_id, number);
+	   }
 }

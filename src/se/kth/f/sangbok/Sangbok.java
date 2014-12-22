@@ -28,7 +28,7 @@ public class Sangbok extends Activity {
 	//some class-variables
 	private ArrayAdapter<Sang> sangerView;
 	private ListView resList;
-	private List<List<Sang>> sangerList;
+	private List<Chapter> chapterList;
 	private List<String> chapterNames;
 	
 	private Menu myMenu;
@@ -64,9 +64,9 @@ public class Sangbok extends Activity {
         sangerView = new ArrayAdapter<Sang>(this, android.R.layout.simple_list_item_1);
         resList = (ListView) findViewById(R.id.resultList);
         resList.setAdapter(sangerView);
-        sangerList = new ArrayList<List<Sang>>();
+        chapterList = new ArrayList<Chapter>();
         chapterNames = new ArrayList<String>();
-        sL = new SangLister(this, sangerView, sangerList, chapterNames);
+        sL = new SangLister(this, sangerView, chapterList, chapterNames);
         
         //Read all songs at start up
         sL.initLists();
@@ -156,8 +156,8 @@ public class Sangbok extends Activity {
 		sangerView.clear();
 		List<Sang> tempList;
 		Sang tempSang;
-		for( int i=0; i<sangerList.size(); ++i ) {
-			tempList = sangerList.get(i);
+		for( int i=0; i<chapterList.size(); ++i ) {
+			tempList = chapterList.get(i).getSangs();
 			for( int j=0; j<tempList.size(); ++j ) {
 				tempSang = tempList.get(j);
 				if( tempSang.getTitle().toLowerCase(Locale.ENGLISH).contains(str.toLowerCase(Locale.ENGLISH)) ||  tempSang.getText().toLowerCase(Locale.ENGLISH).contains(str.toLowerCase(Locale.ENGLISH))) {
@@ -179,6 +179,9 @@ public class Sangbok extends Activity {
 		
 		if( id >= 0 && id <= chapterNames.size() ) {
 			showChpt( id );
+			resetIcons();
+			MenuItem chpt_sort_item = myMenu.findItem( R.id.sort_chpt );
+			chpt_sort_item.setIcon( R.drawable.chpt_sort );
 			TextView textView = (TextView) findViewById(R.id.what_is_seen);
 			String seen =" ";
 			if( id != chapterNames.size() ) seen = " " + getString(R.string.view_chpt) + " ";
@@ -236,13 +239,13 @@ public class Sangbok extends Activity {
 	/*Function that only shows songs from the selected Chapter!
 	 */
 	private void showChpt( int chapter ) {
-		if( chapter > sangerList.size() ) return;
+		if( chapter > chapterList.size() ) return;
 		if( chapter == chapterNames.size() ) {
 			showAllSang();
 			return;
 		}
 		sangerView.clear();
-		List<Sang> temp = sangerList.get(chapter);
+		List<Sang> temp = chapterList.get(chapter).getSangs();
 		for( int i=0; i<temp.size(); ++i ) {
 			sangerView.add( temp.get(i) );
 		}
@@ -254,8 +257,8 @@ public class Sangbok extends Activity {
 	private void showAllSang() {
 		sangerView.clear();
 		List<Sang> temp;
-		for( int i=0; i<sangerList.size(); ++i ) {
-			temp = sangerList.get(i);
+		for( int i=0; i<chapterList.size(); ++i ) {
+			temp = chapterList.get(i).getSangs();
 			for( int j=0; j<temp.size(); ++j ) {
 				sangerView.add( temp.get(j) );
 			}
@@ -269,50 +272,38 @@ public class Sangbok extends Activity {
 	/*
 	 * Function that performs the Synchronization of songs with the server.
 	 */
-	private class sync extends AsyncTask<String, Boolean, int[]> {
+	private class sync extends AsyncTask<String, Boolean, Integer> {
 		
 		@Override
-        protected int[] doInBackground(String... urls) {
+        protected Integer doInBackground(String... urls) {
 		    return SynchronizeHandler.sync(Sangbok.this);
-		    // Return array will be of length 5, meaning: 
-		    //
-		    // 0) Do we have Internet connection?
-			// 1) Did we find/connect to the server (+instruction file)
-			// 2) Did all the songs download as they should
-			// 3) Did we find the chapter definition file
-			// 4) Was the sever correctly configured?
-		    //
-		    // 0 = good, everything worked just fine.
-			// 1 = bad, something went wrong...
+		    // Return an integer to tell how the process went
 		}
 
 		@Override
-		protected void onPostExecute(int[] upDate) {//Deliver a message to the user of how the synchronization went
+		protected void onPostExecute(Integer upDate) {//Deliver a message to the user of how the synchronization went
 			
-			if( upDate[0] != 0 ) {
+			switch( upDate ){
+			case 1:
 				Toast.makeText(Sangbok.this, R.string.network_error, Toast.LENGTH_LONG).show();
-			}
-			if( upDate[1] != 0 ) {
+				break;
+			case 2:
 				Toast.makeText(Sangbok.this, R.string.network_host_not_found, Toast.LENGTH_LONG).show();
-			}
-			if( upDate[2] != 0 ) {
+				break;
+			case 3:
 				Toast.makeText(Sangbok.this, R.string.network_memory_bug, Toast.LENGTH_LONG).show();
-			}
-			if( upDate[3] != 0 ) {
-				Toast.makeText(Sangbok.this, R.string.network_chapter_error, Toast.LENGTH_LONG).show();
-			}
-			if( upDate[4] != 0 ) {
-				Toast.makeText(Sangbok.this, R.string.network_host_error, Toast.LENGTH_LONG).show();
-			}
-			for( int idx=0; idx < upDate.length; ++idx ) {
-				upDate[0] += upDate[idx];
-			}
-			if( upDate[0] == 0 ) {
+				break;
+			case 4:
+				Toast.makeText(Sangbok.this, R.string.network_wierd_error, Toast.LENGTH_LONG).show();
+				break;
+			default:
 				Toast.makeText(Sangbok.this, R.string.network_done, Toast.LENGTH_LONG).show();
+				break;
 			}
 
 			//Re-initiate the song lists after synchronization.
 			sL.initLists();
+			//Re-initiate chapter names as displayed in options bar
 			invalidateOptionsMenu();
 		}
 	}
