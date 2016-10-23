@@ -40,7 +40,7 @@
     <string name="reset_done">Default-värdena är återställda</string>
     <string name="settings_screen_on_title">Håll skärmen vaken när du tittar på en sång</string>
     
-    <string name="serverURL">http://www.f.kth.se/sangbok/chapter</string>
+    <string name="serverURL">https://www.f.kth.se/sangbok/chapter</string>
     
     <!-- No songs downloaded-help -->
     <string name="no_song_found_title">Inga sånger hittades. Klicka här för mer information.</string>
