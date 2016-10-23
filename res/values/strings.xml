@@ -26,55 +26,25 @@
     <string name="what_you_see">Det du ser är:</string>
     <string name="search_results">sökresultat</string>
     <string name="no_search_results">Hittade tyvärr inga sånger som matchar sökningen.</string>
-
-    <!-- Chapters in the book 
-	<string-array name = "chapter_names">
-        <item>Visor till högtid</item>
-	    <item>Visor till gasque</item>
-	    <item>Visor till öl</item>
-	    <item>Visor till destillat</item>
-	    <item>Visor till vin</item>
-	    <item>Visor till punch</item>
-	    <item>Visor till andra drycker</item>
-	    <item>Blöta visor</item>
-	    <item>Torra visor</item>
-	    <item>Fina visor</item>
-	    <item>Vackra visor</item>
-	    <item>Nidvisor</item>
-	    <item>Skojiga visor</item>
-	    <item>Visor till Fysiker</item>
-    </string-array> -->
     
     <!-- Strings related to Network and Sync -->
     <string name="network_error">Ingen internetåtkomst.\nVar vänlig anslut till WiFi eller tillåt datatrafik.</string>
-    <string name="network_host_error">Servern verkar vara felkonfigurerad&#8230;\nHör av dig till din favorit SysAdmin!</string>
-    <string name="network_chapter_error">Hittar inte kapiteldefinitioerna&#8230;\nHör av dig till din favorit SysAdmin!</string>
-    <string name="network_host_not_found">Servern hittades inte, prova att återställa dina värden till default.\nDet kan vara så att servern är felkonfigurerad.</string>
+    <string name="network_wierd_error">Något oklart gick fel&#8230;\nKolla om du inte lyckades ladda hem alla sånger i alla fall.\nKan ge upphov till minnesläckage(?)</string>
+    <string name="network_host_not_found">Servern hittades inte, prova att återställa dina värden till default.</string>
     <string name="network_memory_bug">Lyckades inte ladda hem alla sånger.\nKan vara fel på servern eller så misslyckades appen skriva till minnet.\nKontrollera hur mycket minne som finns kvar.</string>
     <string name="network_done">Synkronisering slutförd.</string>
-    
+    <string name="current_song_book_databese_file_name">fsangbok</string>
     
     <!-- Strings related to Settings -->
     <string name="settings_server_URL_title">Server URL (http://&#8230;)</string>
-    <string name="settings_server_instruction_URL_title">Namn på instruktionsfilen</string>
-    <string name="number_delimiter_title">Kapitel/sång avskiljare</string>
-    <string name="file_ending_title">Filändelse</string>
     <string name="reset_done">Default-värdena är återställda</string>
     <string name="settings_screen_on_title">Håll skärmen vaken när du tittar på en sång</string>
     
-    <string name="serverURL">http://f.kth.se/api/sangbok/</string>
-    <string name="serverInstructionURL">AndroidInstructions.txt</string>
-    <string name="serverFileDelimiter">-</string>
-    <string name="SongFileEnding">.txt</string>
-    
-    
-    <!--  Strings related to Chapter names-->
-    <string name="chapter_names_file">chapterNamesFile.txt</string>
-    <string name="no_chapters_defined">Kunde inte hitta kapitelnamnen. Prova att synkronisera för att ladda ner dem.</string>
+    <string name="serverURL">http://www.f.kth.se/sangbok/chapter</string>
     
     <!-- No songs downloaded-help -->
     <string name="no_song_found_title">Inga sånger hittades. Klicka här för mer information.</string>
-    <string name="no_song_found_text">Appen kunde inte hitta några sångar på din enhet. Prova att gå till menyn i förra fönstret och välja \"Synkronisera\" för att ladda hem sånger.\nAlternativt så har du varit inne i \"Inställningar\" och ändrat på filänderlser/avskiljare. Du kan prova med att gå tillbaka dit och återställa till default värden.\n\n//Din utvecklare</string>
+    <string name="no_song_found_text">Appen kunde inte hitta några sångar på din enhet. Prova att gå till menyn i förra fönstret och välja \"Synkronisera\" för att ladda hem sånger.\nAlternativt så har du varit inne i \"Inställningar\" och ändrat. Du kan prova med att gå tillbaka dit och återställa till default värden.\n\n\n//Din utvecklare</string>
     
     <!-- Not implemented yet, DEV-thing... -->
     <string name="not_implemented">Denna funktion är inte implementerad ännu.</string>
