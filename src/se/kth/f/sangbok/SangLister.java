@@ -1,18 +1,15 @@
 package se.kth.f.sangbok;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -21,7 +18,6 @@ import android.util.JsonReader;
 import android.util.JsonToken;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 /*
 Class that reads the files on the device and processes them into songs!
